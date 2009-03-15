@@ -226,11 +226,13 @@ articles = ['The', 'El', 'La', 'Los', 'Las', 'Le']
 illegal_chars = [':', '*', '<', '>', '|', '?', '\\', '/', '"', '$', '  ']
 
 if __name__ == '__main__':
-    main("Y:\\music\\files")
+    #main("Y:\\music\\files")
     #main(sys.argv[1])
     #main("Y:\\music\\collection\\2Pac")
     #main("Y:\\music\\files\\[2 Unlimited] [Hits Unlimited] [APS]")
     #main("Y:\\music\\flac\\rips a\\Anathallo")
     #main("Y:\\music\\files\\[Alarm Will Sound] [Acoustica Alarm Will Sound Performs Aphex Twin] [FLAC]")
     #main("Y:\\music\\files\\[Soundtrack] [Akira] [APX]")
+    #main("Y:\\music\\files\\[Boards Of Canada] [The Campfire Headphase] [APX]") # fails with UnicodeEncodeError
+    #main("Y:\\music\\files\\[Bacilos] [Caraluna] [APS]") # fails with UnicodeEncodeError
     

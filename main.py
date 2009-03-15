@@ -44,7 +44,7 @@ def main(root):
             t['date']   = str(tags['TDRC'])
 
             if 'TXXX:ALBUM ARTIST' in tags:
-                t['album artist'] = tags['TXXX:ALBUM ARTIST']
+                t['album artist'] = str(tags['TXXX:ALBUM ARTIST'][0])
             else:
                 t['album artist'] = None
 
@@ -69,7 +69,6 @@ def main(root):
 
                 if t1[item] != ptag:
                     print " " * 6 + "Tag mismmatch: 'ID3v1 " + item + "', expected: '" + ptag + "' - change"
-                    print t1[item]
 
             for item in 'track', 'date':
                 if t1[item] != t[item]:
@@ -77,9 +76,11 @@ def main(root):
 
             # create "proper" filename
             pfname = string.zfill(t['track'], 2) + " - "
-            if t['album artist']:
+            if t['album artist'] == 'Various':
                 pfname +=  t['artist'] + " - "
-            pfname += t['title'] + ".mp3"
+            pfname += t['title']
+
+            pfname = safe_name(pfname) + ".mp3"
 
             if fname != pfname:
                 print " " * 6 + "Wrong name, expected: '" + pfname + "' - rename"
@@ -89,11 +90,11 @@ def main(root):
         quality = dname[string.rfind(dname, "["):]
         pdname = "["
         if t['album artist']:
-            pdname +=  t['album artist'] + " "
+            pdname +=  safe_name(t['album artist'])
         else:
-            pdname += t['artist']
+            pdname += safe_name(t['artist'])
 
-        pdname += "] [" + t['album'] + "] " + quality
+        pdname += "] [" + safe_name(t['album']) + "] " + quality
 
         if dname != pdname:
             print " " * 4 + "Wrong directory name, expected: '" + pdname + "' - rename"
@@ -138,9 +139,11 @@ def main(root):
 
             # create "proper" filename
             pfname = string.zfill(t['tracknumber'], 2) + " - "
-            if t['album artist']:
+            if t['album artist'] == 'Various':
                 pfname +=  t['artist'] + " - "
-            pfname += t['title'] + ".flac"
+            pfname += t['title']
+
+            pfname = safe_name(pfname) + ".flac"
 
             if fname != pfname:
                 print " " * 6 + "Wrong name, expected: '" + pfname + "' - rename"
@@ -150,18 +153,32 @@ def main(root):
         quality = dname[string.rfind(dname, "["):]
         pdname = "["
         if t['album artist']:
-            pdname +=  t['album artist'] + " "
+            pdname +=  safe_name(t['album artist'])
         else:
-            pdname += t['artist']
+            pdname += safe_name(t['artist'])
 
-        pdname += "] [" + t['album'] + "] " + quality
+        pdname += "] [" + safe_name(t['album']) + "] " + quality
 
         if dname != pdname:
             print " " * 4 + "Wrong directory name, expected: '" + pdname + "' - rename"
 
         print "" # blank space between dirs
 
+    # reclaim memory
+    flacs = None
 
+
+    print " " * 2 + "Process complete"
+
+
+def safe_name(name):
+
+    for char in illegal_chars:
+        name = string.replace(name, char, ' ')
+
+    return string.strip(name)
+
+    
 # MP3 tags allowed
 mp3_allow = ['TPE1', # performer
              'TALB', # album
@@ -191,10 +208,29 @@ flac_allow = ['artist',
               'replaygain_album_peak',
               'replaygain_track_peak']
 
+# illegal characters mapping
+"""
+char_map = {':': ';',
+            '*': ' ',
+            '<': '[',
+            '>': ']',
+            '|': '!',
+            '?': ' ',
+            '/': ',',
+            '\\': ',',
+            '-': ','}
+
+articles = ['The', 'El', 'La', 'Los', 'Las', 'Le']
+"""
+
+illegal_chars = [':', '*', '<', '>', '|', '?', '\\', '/', '"', '$', '  ']
 
 if __name__ == '__main__':
+    main("Y:\\music\\files")
     #main(sys.argv[1])
     #main("Y:\\music\\collection\\2Pac")
     #main("Y:\\music\\files\\[2 Unlimited] [Hits Unlimited] [APS]")
     #main("Y:\\music\\flac\\rips a\\Anathallo")
-    main("Y:\\music\\files\\[Alarm Will Sound] [Acoustica Alarm Will Sound Performs Aphex Twin] [FLAC]")
+    #main("Y:\\music\\files\\[Alarm Will Sound] [Acoustica Alarm Will Sound Performs Aphex Twin] [FLAC]")
+    #main("Y:\\music\\files\\[Soundtrack] [Akira] [APX]")
+    

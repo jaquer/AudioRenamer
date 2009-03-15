@@ -49,7 +49,7 @@ def main():
     file_list = load_file_list(root, exts)
     print "done"
     
-    print "parsing tags from files... ",
+    print "parsing dirs... ",
     file_list = parse_file_list(file_list)
     print "done"
 

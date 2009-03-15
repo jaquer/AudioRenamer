@@ -16,21 +16,21 @@ def load_file_list(root, exts):
                 file_list[ext] = {}
             for fname in fnmatch.filter(files, "*." + ext):
                 if path not in file_list[ext]:
-                    file_list[ext][path] = {}
-                full_path = os.path.join(path, fname)
+                    file_list[ext][path] = []
+                #full_path = os.path.join(path, fname)
                 #print "Loading into list: '" + full_path + "'"
-                file_list[ext][path][fname] = {}
+                file_list[ext][path].append(fname)
         
     return file_list
 
 def parse_file_list(file_list):
 
     for ext in file_list.iterkeys():
-        for path in file_list[ext].iterkeys():
-            for fname in file_list[ext][path].iterkeys():
+        for path, fnames in file_list[ext].iteritems():
+            for fname in fnames:
                 full_path = os.path.join(path, fname)
-                #print "Reading tags from: '" + full_path + "'"
-                file_list[ext][path][fname] = read_tags(full_path, ext)
+                #print "  reading tags from: '" + full_path + "'"
+                #analyze_file(full_path, ext)
 
     return file_list
 
@@ -43,7 +43,7 @@ if __name__ == '__main__':
     
 
     file_list = load_file_list(root, exts)
-    print parse_file_list(file_list)
+    file_list = parse_file_list(file_list)
 
 """
     for path in file_list['mp3'].iterkeys():

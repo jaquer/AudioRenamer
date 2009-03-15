@@ -5,7 +5,6 @@ import fnmatch
 
 from tags import *
 
-
 def load_file_list(root, exts):
 
     file_list = {}
@@ -25,14 +24,15 @@ def load_file_list(root, exts):
 
 def parse_file_list(file_list):
 
-    for ext in file_list.iterkeys():
-        for path, fnames in file_list[ext].iteritems():
-            for fname in fnames:
-                full_path = os.path.join(path, fname)
-                #print "  reading tags from: '" + full_path + "'"
-                #analyze_file(full_path, ext)
+    for ext, paths in file_list.iteritems():
+        for path, fnames in paths.iteritems():
+            process_files(path, fnames, ext)
 
-    return file_list
+def process_files(path, fnames, ext):
+
+    for fname in fnames:
+        full_path = os.path.join(path, fname)
+         # read_tags(full_path, ext)
 
 if __name__ == '__main__':
 

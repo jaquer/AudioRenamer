@@ -22,7 +22,7 @@ def load_file_list(root, exts):
         
     return file_list
 
-def parse_file_list(file_list):
+def process_file_list(file_list):
 
     for ext, paths in file_list.iteritems():
         for path, fnames in paths.iteritems():

@@ -56,7 +56,7 @@ def read_tags_flac(fname):
         tags = {}
 
         for tag, values in flac_tags.iteritems():
-            tags['flac'][tag] = values[0]
+            tags[tag] = values[0]
 
     return tags
 

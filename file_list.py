@@ -38,7 +38,7 @@ def process_files(path, fnames, ext):
 
     for fname in fnames:
         full_path = os.path.join(path, fname)
-         # read_tags(full_path, ext)
+        file_tags = read_tags(full_path, ext)
 
 if __name__ == '__main__':
 

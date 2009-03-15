@@ -4,6 +4,7 @@ from os import path
 import fnmatch
 
 from tags import *
+from constants import *
 
 def load_file_list(root, exts):
 
@@ -29,6 +30,11 @@ def process_file_list(file_list):
             process_files(path, fnames, ext)
 
 def process_files(path, fnames, ext):
+
+    if ext == 'mp3':
+        allow_tags = {'id3v2': id3v2_allow, 'id3v1': id3v1_allow}
+    elif ext == 'flac':
+        allow_tags = flac_allow
 
     for fname in fnames:
         full_path = os.path.join(path, fname)

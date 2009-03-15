@@ -25,24 +25,24 @@ def read_tags_mp3(fname):
     id3v2_tags = ID3(fname)
 
     if id3v2_tags:
-        tags['v2'] = {}
+        tags['id3v2'] = {}
 
         for tag, values in id3v2_tags.iteritems():
-            tags['v2'][tag] = str(values)
+            tags['id3v2'][tag] = str(values)
 
     id3v1_tags = ID3v1(fname)
 
     if id3v1_tags:
-        tags['v1'] = {}
+        tags['id3v1'] = {}
 
         # i don't know how else to do this
-        tags['v1']['artist']  = id3v1_tags.artist
-        tags['v1']['album']   = id3v1_tags.album
-        tags['v1']['track']   = id3v1_tags.track
-        tags['v1']['title']   = id3v1_tags.title
-        tags['v1']['year']    = id3v1_tags.year
-        tags['v1']['genre']   = id3v1_tags.genre
-        tags['v1']['comment'] = id3v1_tags.comment
+        tags['id3v1']['artist']  = id3v1_tags.artist
+        tags['id3v1']['album']   = id3v1_tags.album
+        tags['id3v1']['track']   = id3v1_tags.track
+        tags['id3v1']['title']   = id3v1_tags.title
+        tags['id3v1']['year']    = id3v1_tags.year
+        tags['id3v1']['genre']   = id3v1_tags.genre
+        tags['id3v1']['comment'] = id3v1_tags.comment
 
     return tags
 
@@ -53,7 +53,7 @@ def read_tags_flac(fname):
     flac_tags = FLAC(fname)
 
     if flac_tags:
-        tags['flac'] = {}
+        tags = {}
 
         for tag, values in flac_tags.iteritems():
             tags['flac'][tag] = values[0]

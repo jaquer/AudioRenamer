@@ -119,58 +119,28 @@ def main(root):
             print " " * 4 + fname
             full_path = os.path.join(path, fname)
 
-            tags = ID3(full_path)
+            tags = FLAC(full_path)
 
-            unallowed = set(tags.keys()).difference(mp3_allow)
+            unallowed = set(tags.keys()).difference(flac_allow)
 
             if unallowed:
                 for item in unallowed:
                     print " " * 6 + "Unallowed tag: '" + item + "' - remove"
 
             t = {} # holds tags info "proper"
-            t['artist'] = str(tags['TPE1'])
-            t['album']  = str(tags['TALB'])
-            t['track']  = str(tags['TRCK'])
-            t['title']  = str(tags['TIT2'])
-            t['date']   = str(tags['TDRC'])
+            for item in 'artist', 'album', 'tracknumber', 'title', 'date':
+                t[item] = str(tags[item][0])
 
-            if 'TXXX:ALBUM ARTIST' in tags:
-                t['album artist'] = tags['TXXX:ALBUM ARTIST']
+            if 'album artist' in tags:
+                t['album artist'] = tags['album artist']
             else:
                 t['album artist'] = None
 
-            # id3v1 check
-            v1 = ID3v1(full_path)
-
-            if v1.comment:
-                print " " * 6 + "Unallowed tag: 'ID3v1 comment ' - remove"
-
-            t1 = {}
-            t1['artist'] = str(v1.artist)
-            t1['album']  = str(v1.album)
-            t1['track']  = str(v1.track)
-            t1['title']  = str(v1.title)
-            t1['date']   = str(v1.year)
-
-            for item in 'artist', 'album', 'title':
-                if len(t[item]) > 28:
-                    ptag = t[item][:28] + '..'
-                else:
-                    ptag = t[item]
-
-                if t1[item] != ptag:
-                    print " " * 6 + "Tag mismmatch: 'ID3v1 " + item + "', expected: '" + ptag + "' - change"
-                    print t1[item]
-
-            for item in 'track', 'date':
-                if t1[item] != t[item]:
-                    print " " * 6 + "Tag mismatch: 'ID3v1 " + item + "', expected: '" + t[item] + "' - change"
-
             # create "proper" filename
-            pfname = string.zfill(t['track'], 2) + " - "
+            pfname = string.zfill(t['tracknumber'], 2) + " - "
             if t['album artist']:
                 pfname +=  t['artist'] + " - "
-            pfname += t['title'] + ".mp3"
+            pfname += t['title'] + ".flac"
 
             if fname != pfname:
                 print " " * 6 + "Wrong name, expected: '" + pfname + "' - rename"
@@ -191,8 +161,6 @@ def main(root):
 
         print "" # blank space between dirs
 
-        
-
 
 # MP3 tags allowed
 mp3_allow = ['TPE1', # performer
@@ -208,31 +176,25 @@ mp3_allow = ['TPE1', # performer
              'TXXX:replaygain_track_peak',
              'TXXX:ALBUM ARTIST']
 
-"""
-def main():
+# FLAC tags allowed
+flac_allow = ['artist',
+              'album',
+              'tracknumber',
+              'title',
+              'date',
+              'genre',
+              'encoder',
+              'discid',
+              'va', # various artists
+              'replaygain_album_gain',
+              'replaygain_track_gain',
+              'replaygain_album_peak',
+              'replaygain_track_peak']
 
-    root = "Y:\\music\\files"
-    exts = ["mp3", "flac"]
 
-    print "loading files... ",
-    file_list = load_file_list(root, exts)
-    print "done"
-    
-    print "parsing directories"
-    process_file_list(file_list)
-    print "done"
-
-
-def analyze_file(file_path, ext):
-
-    invalid_tags = set(file_tags.keys()).difference(allow_tags)
-    if invalid_tags:
-        print "Invalid tags on file '" + file_path + "'"
-        for item in invalid_tags:
-            print "  " + item + ": " + str(file_tags[item][0]).decode(encoding, 'replace')
-
-"""
 if __name__ == '__main__':
     #main(sys.argv[1])
     #main("Y:\\music\\collection\\2Pac")
-    main("Y:\\music\\files\\[2 Unlimited] [Hits Unlimited] [APS]")
+    #main("Y:\\music\\files\\[2 Unlimited] [Hits Unlimited] [APS]")
+    #main("Y:\\music\\flac\\rips a\\Anathallo")
+    main("Y:\\music\\files\\[Alarm Will Sound] [Acoustica Alarm Will Sound Performs Aphex Twin] [FLAC]")

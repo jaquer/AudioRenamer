@@ -17,6 +17,7 @@ def main(root):
     log("")
 
     mp3s = {}
+    log("mp3")
 
     for path, dirs, fnames in os.walk(root):
         for fname in fnmatch.filter(fnames, "*.mp3"):
@@ -28,6 +29,7 @@ def main(root):
         log(path, 2)
 
         fnames.sort()
+
         for fname in fnames:
             log(fname, 4)
             full_path = os.path.join(path, fname)
@@ -103,6 +105,7 @@ def main(root):
     mp3s = None
 
     flacs = {}
+    log("flac")
 
     for path, dirs, fnames in os.walk(root):
         for fname in fnmatch.filter(fnames, "*.flac"):
@@ -159,7 +162,7 @@ def main(root):
     # reclaim memory
     flacs = None
 
-
+    log("")
     log("Process complete: " + strftime("%Y-%m-%d %H:%M:%S"), 2)
 
 
@@ -185,7 +188,10 @@ def safe_dname(artist, album, quality):
 
 def log(msg, lvl=0):
 
-    print " " * lvl + msg
+    try:
+        print " " * lvl + msg
+    except:
+        pass
         
     
 # MP3 tags allowed
@@ -236,13 +242,14 @@ illegal_chars = [':', '*', '<', '>', '|', '?', '\\', '/', '"', '$', '  ']
 articles = ['The ', 'El ', 'La ', 'Los ', 'Las ']
 
 if __name__ == '__main__':
-    main("Y:\\music\\files")
+    #main("Y:\\music\\files")
     #main(sys.argv[1])
     #main("Y:\\music\\collection\\2Pac")
-    #main("Y:\\music\\files\\[2 Unlimited] [Hits Unlimited] [APS]")
+    main("Y:\\music\\files\\[2 Unlimited] [Hits Unlimited] [APS]")
     #main("Y:\\music\\flac\\rips a\\Anathallo")
     #main("Y:\\music\\files\\[Alarm Will Sound] [Acoustica Alarm Will Sound Performs Aphex Twin] [FLAC]")
     #main("Y:\\music\\files\\[Soundtrack] [Akira] [APX]")
-    #main("Y:\\music\\files\\[Boards Of Canada] [The Campfire Headphase] [APX]") # fails with UnicodeEncodeError
-    #main("Y:\\music\\files\\[Bacilos] [Caraluna] [APS]") # fails with UnicodeEncodeErro    
+    #main("Y:\\music\\files\\[Bacilos] [Caraluna] [APS]") # fails with UnicodeEncodeErrror
+    #main("/tank/music/files/[Bacilos] [Caraluna] [APS]")
+    #main("/tank/music/files")
 

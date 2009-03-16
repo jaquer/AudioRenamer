@@ -80,7 +80,7 @@ def main(root):
                 pfname +=  t['artist'] + " - "
             pfname += t['title']
 
-            pfname = safe_name(pfname) + ".mp3"
+            pfname = safe_fname(pfname) + ".mp3"
 
             if fname != pfname:
                 print " " * 6 + "Wrong name, expected: '" + pfname + "' - rename"
@@ -88,13 +88,7 @@ def main(root):
         # create "proper" dirname
         dname = os.path.basename(path)
         quality = dname[string.rfind(dname, "["):]
-        pdname = "["
-        if t['album artist']:
-            pdname +=  safe_name(t['album artist'])
-        else:
-            pdname += safe_name(t['artist'])
-
-        pdname += "] [" + safe_name(t['album']) + "] " + quality
+        pdname = safe_dname(t['album artist'] or t['artist'], t['album'], quality)
 
         if dname != pdname:
             print " " * 4 + "Wrong directory name, expected: '" + pdname + "' - rename"
@@ -143,7 +137,7 @@ def main(root):
                 pfname +=  t['artist'] + " - "
             pfname += t['title']
 
-            pfname = safe_name(pfname) + ".flac"
+            pfname = safe_fname(pfname) + ".flac"
 
             if fname != pfname:
                 print " " * 6 + "Wrong name, expected: '" + pfname + "' - rename"
@@ -151,14 +145,8 @@ def main(root):
         # create "proper" dirname
         dname = os.path.basename(path)
         quality = dname[string.rfind(dname, "["):]
-        pdname = "["
-        if t['album artist']:
-            pdname +=  safe_name(t['album artist'])
-        else:
-            pdname += safe_name(t['artist'])
-
-        pdname += "] [" + safe_name(t['album']) + "] " + quality
-
+        pdname = safe_dname(t['album artist'] or t['artist'], t['album'], quality)
+        
         if dname != pdname:
             print " " * 4 + "Wrong directory name, expected: '" + pdname + "' - rename"
 
@@ -171,13 +159,25 @@ def main(root):
     print " " * 2 + "Process complete"
 
 
-def safe_name(name):
+def safe_fname(fname):
 
     for char in illegal_chars:
-        name = string.replace(name, char, ' ')
+        fname = string.replace(fname, char, ' ')
 
-    return string.strip(name)
+    return string.strip(fname)
 
+def safe_dname(artist, album, quality):
+
+    for article in articles:
+        index = string.find(artist, article)
+        if index == 0:
+            artist = string.replace(artist, article, "", 1) + ", " + article
+
+    index = string.find(album, " (OST)")
+    if index != -1:
+        album = string.replace(album, " (OST)", "", 1)
+
+    return "[" + safe_fname(artist) + "] [" + safe_fname(album) + "] " + quality
     
 # MP3 tags allowed
 mp3_allow = ['TPE1', # performer
@@ -220,10 +220,11 @@ char_map = {':': ';',
             '\\': ',',
             '-': ','}
 
-articles = ['The', 'El', 'La', 'Los', 'Las', 'Le']
+
 """
 
 illegal_chars = [':', '*', '<', '>', '|', '?', '\\', '/', '"', '$', '  ']
+articles = ['The ', 'El ', 'La ', 'Los ', 'Las ']
 
 if __name__ == '__main__':
     #main("Y:\\music\\files")
@@ -234,5 +235,5 @@ if __name__ == '__main__':
     #main("Y:\\music\\files\\[Alarm Will Sound] [Acoustica Alarm Will Sound Performs Aphex Twin] [FLAC]")
     #main("Y:\\music\\files\\[Soundtrack] [Akira] [APX]")
     #main("Y:\\music\\files\\[Boards Of Canada] [The Campfire Headphase] [APX]") # fails with UnicodeEncodeError
-    #main("Y:\\music\\files\\[Bacilos] [Caraluna] [APS]") # fails with UnicodeEncodeError
-    
+    #main("Y:\\music\\files\\[Bacilos] [Caraluna] [APS]") # fails with UnicodeEncodeErro    
+

@@ -9,8 +9,12 @@ from id3v1 import ID3v1
 
 def main(root):
 
-    print "AudioRenamer - It renames audio files"
-    print ""
+    from time import strftime
+
+    log("AudioRenamer - It renames audio files")
+    log("")
+    log("Starting process: " + strftime("%Y-%m-%d %H:%M:%S"), 2)
+    log("")
 
     mp3s = {}
 
@@ -21,11 +25,11 @@ def main(root):
             mp3s[path].append(fname)
 
     for path, fnames in mp3s.iteritems():
-        print " " * 2 + path
+        log(path, 2)
 
         fnames.sort()
         for fname in fnames:
-            print " " * 4 + fname
+            log(fname, 4)
             full_path = os.path.join(path, fname)
 
             tags = ID3(full_path)
@@ -34,7 +38,7 @@ def main(root):
 
             if unallowed:
                 for item in unallowed:
-                    print " " * 6 + "Unallowed tag: '" + item + "' - remove"
+                    log("Unallowed tag: '" + item + "' - remove", 6)
 
             t = {} # holds tags info "proper"
             t['artist'] = str(tags['TPE1'])
@@ -52,7 +56,7 @@ def main(root):
             v1 = ID3v1(full_path)
 
             if v1.comment:
-                print " " * 6 + "Unallowed tag: 'ID3v1 comment ' - remove"
+                log("Unallowed tag: 'ID3v1 comment ' - remove", 6)
 
             t1 = {}
             t1['artist'] = str(v1.artist)
@@ -68,11 +72,11 @@ def main(root):
                     ptag = t[item]
 
                 if t1[item] != ptag:
-                    print " " * 6 + "Tag mismmatch: 'ID3v1 " + item + "', expected: '" + ptag + "' - change"
+                    log("Tag mismmatch: 'ID3v1 " + item + "', expected: '" + ptag + "' - change", 6)
 
             for item in 'track', 'date':
                 if t1[item] != t[item]:
-                    print " " * 6 + "Tag mismatch: 'ID3v1 " + item + "', expected: '" + t[item] + "' - change"
+                    log("Tag mismatch: 'ID3v1 " + item + "', expected: '" + t[item] + "' - change", 6)
 
             # create "proper" filename
             pfname = string.zfill(t['track'], 2) + " - "
@@ -83,7 +87,7 @@ def main(root):
             pfname = safe_fname(pfname) + ".mp3"
 
             if fname != pfname:
-                print " " * 6 + "Wrong name, expected: '" + pfname + "' - rename"
+                log("Wrong name, expected: '" + pfname + "' - rename", 6)
 
         # create "proper" dirname
         dname = os.path.basename(path)
@@ -91,9 +95,9 @@ def main(root):
         pdname = safe_dname(t['album artist'] or t['artist'], t['album'], quality)
 
         if dname != pdname:
-            print " " * 4 + "Wrong directory name, expected: '" + pdname + "' - rename"
+            log("Wrong directory name, expected: '" + pdname + "' - rename", 4)
 
-        print "" # blank space between dirs
+        log("") # blank space between dirs
 
     # reclaim memory
     mp3s = None
@@ -107,11 +111,11 @@ def main(root):
             flacs[path].append(fname)
 
     for path, fnames in flacs.iteritems():
-        print " " * 2 + path
+        log(path, 2)
 
         fnames.sort()
         for fname in fnames:
-            print " " * 4 + fname
+            log(fname, 4)
             full_path = os.path.join(path, fname)
 
             tags = FLAC(full_path)
@@ -120,7 +124,7 @@ def main(root):
 
             if unallowed:
                 for item in unallowed:
-                    print " " * 6 + "Unallowed tag: '" + item + "' - remove"
+                    log("Unallowed tag: '" + item + "' - remove", 6)
 
             t = {} # holds tags info "proper"
             for item in 'artist', 'album', 'tracknumber', 'title', 'date':
@@ -140,7 +144,7 @@ def main(root):
             pfname = safe_fname(pfname) + ".flac"
 
             if fname != pfname:
-                print " " * 6 + "Wrong name, expected: '" + pfname + "' - rename"
+                log("Wrong name, expected: '" + pfname + "' - rename", 6)
 
         # create "proper" dirname
         dname = os.path.basename(path)
@@ -148,15 +152,15 @@ def main(root):
         pdname = safe_dname(t['album artist'] or t['artist'], t['album'], quality)
         
         if dname != pdname:
-            print " " * 4 + "Wrong directory name, expected: '" + pdname + "' - rename"
+            log("Wrong directory name, expected: '" + pdname + "' - rename", 4)
 
-        print "" # blank space between dirs
+        log("") # blank space between dirs
 
     # reclaim memory
     flacs = None
 
 
-    print " " * 2 + "Process complete"
+    log("Process complete: " + strftime("%Y-%m-%d %H:%M:%S"), 2)
 
 
 def safe_fname(fname):
@@ -178,6 +182,11 @@ def safe_dname(artist, album, quality):
         album = string.replace(album, " (OST)", "", 1)
 
     return "[" + safe_fname(artist) + "] [" + safe_fname(album) + "] " + quality
+
+def log(msg, lvl=0):
+
+    print " " * lvl + msg
+        
     
 # MP3 tags allowed
 mp3_allow = ['TPE1', # performer
@@ -227,7 +236,7 @@ illegal_chars = [':', '*', '<', '>', '|', '?', '\\', '/', '"', '$', '  ']
 articles = ['The ', 'El ', 'La ', 'Los ', 'Las ']
 
 if __name__ == '__main__':
-    #main("Y:\\music\\files")
+    main("Y:\\music\\files")
     #main(sys.argv[1])
     #main("Y:\\music\\collection\\2Pac")
     #main("Y:\\music\\files\\[2 Unlimited] [Hits Unlimited] [APS]")

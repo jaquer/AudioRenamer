@@ -47,7 +47,11 @@ def main(root):
             t['album']  = str(tags['TALB'])
             t['track']  = str(tags['TRCK'])
             t['title']  = str(tags['TIT2'])
-            t['date']   = str(tags['TDRC'])
+            if 'TDRC' in tags:
+                t['date']   = str(tags['TDRC'])
+            else:
+                t['date'] = ''
+                #log("Date tag missing - add", 6)
 
             if 'TXXX:ALBUM ARTIST' in tags:
                 t['album artist'] = str(tags['TXXX:ALBUM ARTIST'][0])
@@ -68,7 +72,7 @@ def main(root):
             t1['date']   = str(v1.year)
 
             for item in 'artist', 'album', 'title':
-                if len(t[item]) > 28:
+                if len(t[item]) > 30:
                     ptag = t[item][:28] + '..'
                 else:
                     ptag = t[item]
@@ -131,7 +135,8 @@ def main(root):
 
             t = {} # holds tags info "proper"
             for item in 'artist', 'album', 'tracknumber', 'title', 'date':
-                t[item] = str(tags[item][0])
+                t[item] = str(tags[item][0].encode('utf-8'))
+
 
             if 'album artist' in tags:
                 t['album artist'] = tags['album artist']
@@ -242,14 +247,15 @@ illegal_chars = [':', '*', '<', '>', '|', '?', '\\', '/', '"', '$', '  ']
 articles = ['The ', 'El ', 'La ', 'Los ', 'Las ']
 
 if __name__ == '__main__':
-    #main("Y:\\music\\files")
+    main("Y:\\music\\files")
     #main(sys.argv[1])
     #main("Y:\\music\\collection\\2Pac")
-    main("Y:\\music\\files\\[2 Unlimited] [Hits Unlimited] [APS]")
+    #main("Y:\\music\\files\\[2 Unlimited] [Hits Unlimited] [APS]")
     #main("Y:\\music\\flac\\rips a\\Anathallo")
     #main("Y:\\music\\files\\[Alarm Will Sound] [Acoustica Alarm Will Sound Performs Aphex Twin] [FLAC]")
     #main("Y:\\music\\files\\[Soundtrack] [Akira] [APX]")
     #main("Y:\\music\\files\\[Bacilos] [Caraluna] [APS]") # fails with UnicodeEncodeErrror
-    #main("/tank/music/files/[Bacilos] [Caraluna] [APS]")
+    #main("/tank/music/files/[2 Unlimited] [Hits Unlimited] [APS]")
     #main("/tank/music/files")
+    #main("Y:\\music\\files\\[Jaguares] [El Equilibrio De Los Jaguares] [FLAC]")
 

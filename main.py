@@ -113,7 +113,7 @@ def process_mp3_dir(path, file_list):
     quality = dname[string.rfind(dname, "["):]
     pdname = safe_dname(t['album artist'] or t['artist'], t['album'], quality)
 
-    if unicode(dname) != pdname:
+    if unicode(dname, enc) != pdname:
         log("Wrong directory name, expected: '" + pdname + "' - rename", 4)
 
     log("") # blank space between dirs

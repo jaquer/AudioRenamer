@@ -189,8 +189,10 @@ def process_flac_dir(path, file_list):
 
 def safe_fname(fname):
 
-    for char in illegal_chars:
-        fname = string.replace(fname, char, ' ')
+    import re
+    fname, subs = re.subn(r':|\*|<|>|\||\?|\\|/|"|\$|  ', ' ', fname)
+    while subs != 0:
+        fname, subs = re.subn(r':|\*|<|>|\||\?|\\|/|"|\$|  ', ' ', fname)
 
     return string.strip(fname)
 
@@ -246,22 +248,6 @@ flac_allow = ['artist',
               'replaygain_album_peak',
               'replaygain_track_peak']
 
-# illegal characters mapping
-"""
-char_map = {':': ';',
-            '*': ' ',
-            '<': '[',
-            '>': ']',
-            '|': '!',
-            '?': ' ',
-            '/': ',',
-            '\\': ',',
-            '-': ','}
-
-
-"""
-
-illegal_chars = [':', '*', '<', '>', '|', '?', '\\', '/', '"', '$', '  ']
 articles = ['The ', 'El ', 'La ', 'Los ', 'Las ']
 
 if __name__ == '__main__':
@@ -277,4 +263,5 @@ if __name__ == '__main__':
     #main("/tank/music/files/[2 Unlimited] [Hits Unlimited] [APS]")
     #main("/tank/music/files")
     #main("Y:\\music\\files\\[Jaguares] [El Equilibrio De Los Jaguares] [FLAC]")
+
 

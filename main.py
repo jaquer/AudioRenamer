@@ -59,23 +59,23 @@ def process_mp3_dir(path, file_list):
                 log("Unallowed tag: '" + item[:4] + "' - remove", 6)
 
         t = {} # holds tags info "proper"
-        t['artist'] = unicode(tags['TPE1'])
-        t['album']  = unicode(tags['TALB'])
-        t['track']  = str(tags['TRCK'])
-        t['title']  = unicode(tags['TIT2'])
+        t['artist'] = tags['TPE1'][0]
+        t['album']  = tags['TALB'][0]
+        t['track']  = str(tags['TRCK'][0])
+        t['title']  = tags['TIT2'][0]
         if 'TDRC' in tags:
-            t['date']   = str(tags['TDRC'])
+            t['date']   = str(tags['TDRC'][0])
         else:
             t['date'] = ''
             #log("Date tag missing - add", 6)
 
         if 'TCON' in tags:
-            t['genre'] = unicode(tags['TCON'])
+            t['genre'] = tags['TCON'][0]
         else:
             t['genre'] = None
 
         if 'TXXX:ALBUM ARTIST' in tags:
-            t['album artist'] = unicode(tags['TXXX:ALBUM ARTIST'][0])
+            t['album artist'] = tags['TXXX:ALBUM ARTIST'][0]
         else:
             t['album artist'] = None
 
@@ -136,7 +136,7 @@ def process_flac_dir(path, file_list):
     file_list.sort()
 
     for fname in file_list:
-        
+
         log(fname, 4)
         full_path = os.path.join(path, fname)
 
@@ -149,8 +149,13 @@ def process_flac_dir(path, file_list):
                 log("Unallowed tag: '" + item + "' - remove", 6)
 
         t = {} # holds tags info "proper"
-        for item in 'artist', 'album', 'tracknumber', 'title', 'date', 'genre':
-            t[item] = str(tags[item][0].encode('utf-8'))
+        for item in 'artist', 'album', 'tracknumber', 'title', 'date':
+            t[item] = tags[item][0]
+
+        if 'genre' in tags:
+            t['genre'] = tags['genre'][0]
+        else:
+            t['genre'] = None
 
         if 'va' in tags:
             t['album artist'] = "Various"
@@ -165,7 +170,7 @@ def process_flac_dir(path, file_list):
 
         pfname = safe_fname(pfname) + ".flac"
 
-        if fname != pfname:
+        if unicode(fname, enc) != pfname:
             log("Wrong name, expected: '" + pfname + "' - rename", 6)
 
         # soundtrack dirs
@@ -177,7 +182,7 @@ def process_flac_dir(path, file_list):
     quality = dname[string.rfind(dname, "["):]
     pdname = safe_dname(t['album artist'] or t['artist'], t['album'], quality)
 
-    if dname != pdname:
+    if unicode(dname, enc) != pdname:
         log("Wrong directory name, expected: '" + pdname + "' - rename", 4)
 
     log("") # blank space between dirs
@@ -205,10 +210,12 @@ def safe_dname(artist, album, quality):
 def log(msg, lvl=0):
 
     try:
-        print " " * lvl + msg
+        print " " * lvl + msg.decode(enc)
     except:
-        pass
-        
+        try:
+            print " " * lvl + msg
+        except:
+            pass
     
 # MP3 tags allowed
 mp3_allow = ['TPE1', # performer

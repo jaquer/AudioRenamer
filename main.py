@@ -7,6 +7,8 @@ from mutagen.id3 import ID3
 from mutagen.flac import FLAC
 from id3v1 import ID3v1
 
+enc = 'iso-8859-1'
+
 def main(root):
 
     from time import strftime
@@ -44,6 +46,7 @@ def process_mp3_dir(path, file_list):
     file_list.sort()
 
     for fname in file_list:
+
         log(fname, 4)
         full_path = os.path.join(path, fname)
 
@@ -53,7 +56,7 @@ def process_mp3_dir(path, file_list):
 
         if unallowed:
             for item in unallowed:
-                log("Unallowed tag: '" + item + "' - remove", 6)
+                log("Unallowed tag: '" + item[:4] + "' - remove", 6)
 
         t = {} # holds tags info "proper"
         t['artist'] = unicode(tags['TPE1'])
@@ -66,6 +69,11 @@ def process_mp3_dir(path, file_list):
             t['date'] = ''
             #log("Date tag missing - add", 6)
 
+        if 'TCON' in tags:
+            t['genre'] = unicode(tags['TCON'])
+        else:
+            t['genre'] = None
+
         if 'TXXX:ALBUM ARTIST' in tags:
             t['album artist'] = unicode(tags['TXXX:ALBUM ARTIST'][0])
         else:
@@ -76,7 +84,6 @@ def process_mp3_dir(path, file_list):
 
         if v1.comment:
             log("Unallowed tag: 'ID3v1 comment ' - remove", 6)
-        enc = 'iso-8859-1'
         t1 = {}
         t1['artist'] = unicode(v1.artist, enc)
         t1['album']  = unicode(v1.album, enc)
@@ -108,6 +115,10 @@ def process_mp3_dir(path, file_list):
         if unicode(fname, enc) != pfname:
             log("Wrong name, expected: '" + pfname + "' - rename", 6)
 
+        # soundtrack dirs
+        if t['genre'] == "Soundtrack":
+            t['album artist'] = t['genre']
+
     # create "proper" dirname
     dname = os.path.basename(path)
     quality = dname[string.rfind(dname, "["):]
@@ -138,11 +149,11 @@ def process_flac_dir(path, file_list):
                 log("Unallowed tag: '" + item + "' - remove", 6)
 
         t = {} # holds tags info "proper"
-        for item in 'artist', 'album', 'tracknumber', 'title', 'date':
+        for item in 'artist', 'album', 'tracknumber', 'title', 'date', 'genre':
             t[item] = str(tags[item][0].encode('utf-8'))
 
-        if 'album artist' in tags:
-            t['album artist'] = tags['album artist']
+        if 'va' in tags:
+            t['album artist'] = "Various"
         else:
             t['album artist'] = None
 
@@ -156,6 +167,10 @@ def process_flac_dir(path, file_list):
 
         if fname != pfname:
             log("Wrong name, expected: '" + pfname + "' - rename", 6)
+
+        # soundtrack dirs
+        if t['genre'] == "Soundtrack":
+            t['album artist'] = t['genre']
 
     # create "proper" dirname
     dname = os.path.basename(path)

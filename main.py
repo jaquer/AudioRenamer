@@ -11,16 +11,7 @@ enc = 'iso-8859-1'
 
 def main(root):
 
-    from time import strftime
-
     root = unicode(root, enc)
-
-    log("AudioRenamer - It renames audio files")
-    log("")
-    log("Starting process: " + strftime("%Y-%m-%d %H:%M:%S"), 2)
-    log("")
-
-    log("mp3")
 
     for path, dirs, fnames in os.walk(root):
         file_list = []
@@ -29,17 +20,12 @@ def main(root):
         if file_list:
             process_mp3_dir(path, file_list)
 
-    log("flac")
-
     for path, dirs, fnames in os.walk(root):
         file_list = []
         for fname in fnmatch.filter(fnames, "*.flac"):
             file_list.append(fname)
         if file_list:
             process_flac_dir(path, file_list)
-
-    log("")
-    log("Process complete: " + strftime("%Y-%m-%d %H:%M:%S"), 2)
 
 def process_mp3_dir(path, file_list):
 
@@ -247,15 +233,20 @@ flac_allow = ['artist',
 articles = ['The ', 'El ', 'La ', 'Los ', 'Las ']
 
 if __name__ == '__main__':
-    main("Y:\\music\\files")
-    #main(sys.argv[1])
-    #main("Y:\\music\\collection\\2Pac")
-    #main("Y:\\music\\files\\[2 Unlimited] [Hits Unlimited] [APS]")
-    #main("Y:\\music\\flac\\rips a\\Anathallo")
-    #main("Y:\\music\\files\\[Alarm Will Sound] [Acoustica Alarm Will Sound Performs Aphex Twin] [FLAC]")
-    #main("Y:\\music\\files\\[Soundtrack] [Akira] [APX]")
-    #main("Y:\\music\\files\\[Bacilos] [Caraluna] [APS]") # fails with UnicodeEncodeErrror
-    #main("/tank/music/files/[Bacilos] [Caraluna] [APS]")
-    #main("/tank/music/files/[2 Unlimited] [Hits Unlimited] [APS]")
-    #main("/tank/music/files")
-    #main("Y:\\music\\files\\[Jaguares] [El Equilibrio De Los Jaguares] [FLAC]")
+
+    from time import strftime
+
+    log("AudioRenamer - It renames audio files")
+    log("")
+
+    if len(sys.argv) == 1:
+        log("Usage: " + os.path.basename(sys.argv[0]) + " <directories>")
+        sys.exit(0)
+    
+    log("Starting process: " + strftime("%Y-%m-%d %H:%M:%S"), 2)
+    log("")
+
+    for arg in sys.argv[1:]:
+        main(arg)
+
+    log("Process complete: " + strftime("%Y-%m-%d %H:%M:%S"), 2)

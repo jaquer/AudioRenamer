@@ -13,6 +13,8 @@ def main(root):
 
     from time import strftime
 
+    root = unicode(root, enc)
+
     log("AudioRenamer - It renames audio files")
     log("")
     log("Starting process: " + strftime("%Y-%m-%d %H:%M:%S"), 2)
@@ -112,7 +114,7 @@ def process_mp3_dir(path, file_list):
 
         pfname = safe_fname(pfname) + ".mp3"
 
-        if unicode(fname, enc) != pfname:
+        if fname != pfname:
             log("Wrong name, expected: '" + pfname + "' - rename", 6)
 
         # soundtrack dirs
@@ -124,7 +126,7 @@ def process_mp3_dir(path, file_list):
     quality = dname[string.rfind(dname, "["):]
     pdname = safe_dname(t['album artist'] or t['artist'], t['album'], quality)
 
-    if unicode(dname, enc) != pdname:
+    if dname != pdname:
         log("Wrong directory name, expected: '" + pdname + "' - rename", 4)
 
     log("") # blank space between dirs
@@ -170,7 +172,7 @@ def process_flac_dir(path, file_list):
 
         pfname = safe_fname(pfname) + ".flac"
 
-        if unicode(fname, enc) != pfname:
+        if fname != pfname:
             log("Wrong name, expected: '" + pfname + "' - rename", 6)
 
         # soundtrack dirs
@@ -182,7 +184,7 @@ def process_flac_dir(path, file_list):
     quality = dname[string.rfind(dname, "["):]
     pdname = safe_dname(t['album artist'] or t['artist'], t['album'], quality)
 
-    if unicode(dname, enc) != pdname:
+    if dname != pdname:
         log("Wrong directory name, expected: '" + pdname + "' - rename", 4)
 
     log("") # blank space between dirs
@@ -211,13 +213,7 @@ def safe_dname(artist, album, quality):
 
 def log(msg, lvl=0):
 
-    try:
-        print " " * lvl + msg.decode(enc)
-    except:
-        try:
-            print " " * lvl + msg
-        except:
-            pass
+    print " " * lvl + msg.encode(enc, 'replace')
     
 # MP3 tags allowed
 mp3_allow = ['TPE1', # performer
@@ -263,5 +259,3 @@ if __name__ == '__main__':
     #main("/tank/music/files/[2 Unlimited] [Hits Unlimited] [APS]")
     #main("/tank/music/files")
     #main("Y:\\music\\files\\[Jaguares] [El Equilibrio De Los Jaguares] [FLAC]")
-
-

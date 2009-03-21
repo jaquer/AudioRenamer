@@ -7,148 +7,47 @@ from mutagen.id3 import ID3
 from mutagen.flac import FLAC
 from id3v1 import ID3v1
 
-enc = 'iso-8859-1'
+verbose  = False         # prints paths, dirs as they are checked
+encoding = 'iso-8859-1'  # filename/tag encoding
 
 def main(root):
 
-    root = unicode(root, enc)
+    root = unicode(root, encoding)
+    root = os.path.abspath(root)
 
     for path, dirs, fnames in os.walk(root):
-        file_list = []
-        for fname in fnmatch.filter(fnames, "*.mp3"):
-            file_list.append(fname)
-        if file_list:
-            process_mp3_dir(path, file_list)
 
-    for path, dirs, fnames in os.walk(root):
-        file_list = []
-        for fname in fnmatch.filter(fnames, "*.flac"):
-            file_list.append(fname)
-        if file_list:
-            process_flac_dir(path, file_list)
+        for ext in 'mp3', 'flac':
+            file_list = []
+            for fname in fnmatch.filter(fnames, "*." + ext):
+                file_list.append(fname)
+            if file_list:
+                process_dir(path, file_list, ext)
 
-def process_mp3_dir(path, file_list):
+def process_dir(path, file_list, ext):
 
-    log(path, 2)
+    log_path = True
+
+    if verbose:
+        log(path, 2)
+        log_path = False
 
     file_list.sort()
 
     for fname in file_list:
 
-        log(fname, 4)
+        log_fname = True
+
+        if verbose:
+            log(fname, 4)
+            log_fname = False
         full_path = os.path.join(path, fname)
 
-        tags = ID3(full_path)
-
-        unallowed = set(tags.keys()).difference(mp3_allow)
-
-        if unallowed:
-            for item in unallowed:
-                log("Unallowed tag: '" + item[:4] + "' - remove", 6)
-
-        t = {} # holds tags info "proper"
-        t['artist'] = tags['TPE1'][0]
-        t['album']  = tags['TALB'][0]
-        t['track']  = str(tags['TRCK'][0])
-        t['title']  = tags['TIT2'][0]
-        if 'TDRC' in tags:
-            t['date']   = str(tags['TDRC'][0])
-        else:
-            t['date'] = ''
-            #log("Date tag missing - add", 6)
-
-        if 'TCON' in tags:
-            t['genre'] = tags['TCON'][0]
-        else:
-            t['genre'] = None
-
-        if 'TXXX:ALBUM ARTIST' in tags:
-            t['album artist'] = tags['TXXX:ALBUM ARTIST'][0]
-        else:
-            t['album artist'] = None
-
-        # id3v1 check
-        v1 = ID3v1(full_path)
-
-        if v1.comment:
-            log("Unallowed tag: 'ID3v1 comment ' - remove", 6)
-        t1 = {}
-        t1['artist'] = unicode(v1.artist, enc)
-        t1['album']  = unicode(v1.album, enc)
-        t1['track']  = str(v1.track)
-        t1['title']  = unicode(v1.title, enc)
-        t1['date']   = str(v1.year)
-
-        for item in 'artist', 'album', 'title':
-            if len(t[item]) > 30:
-                ptag = t[item][:28] + '..'
-            else:
-                ptag = t[item]
-
-            if t1[item] != ptag:
-                log("Tag mismmatch: 'ID3v1 " + item + "', expected: '" + ptag + "' - change", 6)
-
-        for item in 'track', 'date':
-            if t1[item] != t[item]:
-                log("Tag mismatch: 'ID3v1 " + item + "', expected: '" + t[item] + "' - change", 6)
-
-        # create "proper" filename
-        pfname = string.zfill(t['track'], 2) + " - "
-        if t['album artist'] == 'Various':
-            pfname +=  t['artist'] + " - "
-        pfname += t['title']
-
-        pfname = safe_fname(pfname) + ".mp3"
-
-        if fname != pfname:
-            log("Wrong name, expected: '" + pfname + "' - rename", 6)
-
-        # soundtrack dirs
-        if t['genre'] == "Soundtrack":
-            t['album artist'] = t['genre']
-
-    # create "proper" dirname
-    dname = os.path.basename(path)
-    quality = dname[string.rfind(dname, "["):]
-    pdname = safe_dname(t['album artist'] or t['artist'], t['album'], quality)
-
-    if dname != pdname:
-        log("Wrong directory name, expected: '" + pdname + "' - rename", 4)
-
-    log("") # blank space between dirs
-
-def process_flac_dir(path, file_list):
-
-    log(path, 2)
-
-    file_list.sort()
-
-    for fname in file_list:
-
-        log(fname, 4)
-        full_path = os.path.join(path, fname)
-
-        tags = FLAC(full_path)
-
-        unallowed = set(tags.keys()).difference(flac_allow)
-
-        if unallowed:
-            for item in unallowed:
-                log("Unallowed tag: '" + item + "' - remove", 6)
-
-        t = {} # holds tags info "proper"
-        for item in 'artist', 'album', 'tracknumber', 'title', 'date':
-            t[item] = tags[item][0]
-
-        if 'genre' in tags:
-            t['genre'] = tags['genre'][0]
-        else:
-            t['genre'] = None
-
-        if 'va' in tags:
-            t['album artist'] = "Various"
-        else:
-            t['album artist'] = None
+        # tag-checking loop: different based on format
+        if ext == 'mp3':
+            t, e = check_mp3_tags(full_path)
+        elif ext == 'flac':
+            t, e = check_flac_tags(full_path)
 
         # create "proper" filename
         pfname = string.zfill(t['tracknumber'], 2) + " - "
@@ -156,14 +55,24 @@ def process_flac_dir(path, file_list):
             pfname +=  t['artist'] + " - "
         pfname += t['title']
 
-        pfname = safe_fname(pfname) + ".flac"
+        pfname = safe_fname(pfname) + "." + ext
 
         if fname != pfname:
-            log("Wrong name, expected: '" + pfname + "' - rename", 6)
+            e.append("Wrong name, expected: '" + pfname + "' - rename")
 
         # soundtrack dirs
         if t['genre'] == "Soundtrack":
             t['album artist'] = t['genre']
+
+        if e:
+            if log_path:
+                log(path, 2)
+                log_path = False
+            if log_fname:
+                log(fname, 4)
+                log_fname = False
+            for error in e:
+                log(error, 6)
 
     # create "proper" dirname
     dname = os.path.basename(path)
@@ -171,9 +80,105 @@ def process_flac_dir(path, file_list):
     pdname = safe_dname(t['album artist'] or t['artist'], t['album'], quality)
 
     if dname != pdname:
+        if log_path:
+            log(path, 2)
         log("Wrong directory name, expected: '" + pdname + "' - rename", 4)
 
-    log("") # blank space between dirs
+def check_mp3_tags(full_path):
+
+    t = {} # "proper" tags
+    e = [] # errors
+
+    tags = ID3(full_path)
+
+    unallowed = set(tags.keys()).difference(mp3_allow)
+
+    if unallowed:
+        for item in unallowed:
+            e.append("Unallowed tag: '" + item[:4] + "' - remove")
+
+    t['artist']       = tags['TPE1'][0]
+    t['album']        = tags['TALB'][0]
+    t['tracknumber']  = str(tags['TRCK'][0])
+    t['title']        = tags['TIT2'][0]
+
+    if 'TDRC' in tags:
+        t['date']   = str(tags['TDRC'][0])
+    else:
+        t['date'] = ''
+        #e.append("Date tag missing - add")
+
+    if 'TCON' in tags:
+        t['genre'] = tags['TCON'][0]
+    else:
+        t['genre'] = None
+
+    if 'TXXX:ALBUM ARTIST' in tags:
+        t['album artist'] = tags['TXXX:ALBUM ARTIST'][0]
+    else:
+        t['album artist'] = None
+
+    # id3v1 check
+    v1 = ID3v1(full_path)
+
+    if v1.comment:
+        e.append("Unallowed tag: 'ID3v1 comment ' - remove")
+
+    t1 = {} # temp dict for id3v1 tags
+    t1['artist']       = unicode(v1.artist, encoding)
+    t1['album']        = unicode(v1.album, encoding)
+    t1['tracknumber']  = str(v1.track)
+    t1['title']        = unicode(v1.title, encoding)
+    t1['date']         = str(v1.year)
+
+    for item in 'artist', 'album', 'title':
+        if len(t[item]) > 30:
+            ptag = t[item][:28] + '..'
+        else:
+            ptag = t[item]
+
+        if t1[item] != ptag:
+            e.append("Tag mismmatch: 'ID3v1 " + item + "', expected: '" + ptag + "' - change")
+
+    for item in 'tracknumber', 'date':
+        if t1[item] != t[item]:
+            e.append("Tag mismatch: 'ID3v1 " + item + "', expected: '" + t[item] + "' - change")
+
+    return t, e
+
+def check_flac_tags(full_path):
+
+    t = {} # "proper" tags
+    e = [] # errors
+
+    tags = FLAC(full_path)
+
+    unallowed = set(tags.keys()).difference(flac_allow)
+
+    if unallowed:
+        for item in unallowed:
+            e.append("Unallowed tag: '" + item + "' - remove")
+
+    for item in 'artist', 'album', 'tracknumber', 'title', 'date':
+        t[item] = tags[item][0]
+
+    if 'date' in tags:
+        t['date'] = tags[item][0]
+    else:
+        t['date'] = ''
+        #e.append("Date tag missing - add")
+
+    if 'genre' in tags:
+        t['genre'] = tags['genre'][0]
+    else:
+        t['genre'] = None
+
+    if 'va' in tags:
+        t['album artist'] = "Various"
+    else:
+        t['album artist'] = None
+
+    return t, e
 
 def safe_fname(fname):
 
@@ -199,7 +204,7 @@ def safe_dname(artist, album, quality):
 
 def log(msg, lvl=0):
 
-    print " " * lvl + msg.encode(enc, 'replace')
+    print " " * lvl + msg.encode(encoding, 'replace')
     
 # MP3 tags allowed
 mp3_allow = ['TPE1', # performer

@@ -103,13 +103,15 @@ class ID3v1(object):
             return False
 
     def commit(self):
-        id3v1 = struct.pack("!3s30s30s30s4s30sb",
+        id3v1 = struct.pack("!3s30s30s30s4s28sbbb",
             'TAG',
             self.title,
             self.artist,
             self.album,
             self.year,
             self.comment,
+            0,
+            self.track,
             self.genre)
     
         if self.tag_exists():

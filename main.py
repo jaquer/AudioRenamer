@@ -139,10 +139,23 @@ def check_mp3_tags(full_path):
 
         if t1[item] != ptag:
             e.append("Tag mismmatch: 'ID3v1 " + item + "', expected: '" + ptag + "' - change")
+            ptag = ptag.encode(encoding)
+            if item == 'artist':
+                v1.artist = ptag
+            elif item == 'album':
+                v1.album = ptag
+            elif item == 'title':
+                v1.title = ptag
+            v1.commit()
 
     for item in 'tracknumber', 'date':
         if t1[item] != t[item]:
             e.append("Tag mismatch: 'ID3v1 " + item + "', expected: '" + t[item] + "' - change")
+            if item == 'tracknumber':
+                v1.track = t[item]
+            elif item == 'date':
+                v1.year = t[item]
+            v1.commit()
 
     return t, e
 

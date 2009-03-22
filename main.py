@@ -193,7 +193,7 @@ def check_flac_tags(full_path):
     else:
         t['genre'] = None
 
-    if 'va' in tags:
+    if 'va' in tags or 'album artist' in tags:
         t['album artist'] = "Various"
     else:
         t['album artist'] = None
@@ -250,6 +250,7 @@ flac_allow = ['artist',
               'encoder',
               'discid',
               'va', # various artists
+              'album artist',
               'replaygain_album_gain',
               'replaygain_track_gain',
               'replaygain_album_peak',

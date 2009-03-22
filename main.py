@@ -29,6 +29,7 @@ def process_dir(path, file_list, ext):
     log_path = True
 
     if verbose:
+        log("")
         log(path, 2)
         log_path = False
 
@@ -59,6 +60,8 @@ def process_dir(path, file_list, ext):
 
         if fname != pfname:
             e.append("Wrong name, expected: '" + pfname + "' - rename")
+            full_pfname = os.path.join(os.path.dirname(full_path), pfname)
+            os.rename(full_path, full_pfname)
 
         # soundtrack dirs
         if t['genre'] == "Soundtrack":
@@ -66,6 +69,7 @@ def process_dir(path, file_list, ext):
 
         if e:
             if log_path:
+                log("")
                 log(path, 2)
                 log_path = False
             if log_fname:
@@ -81,8 +85,11 @@ def process_dir(path, file_list, ext):
 
     if dname != pdname:
         if log_path:
+            log("")
             log(path, 2)
         log("Wrong directory name, expected: '" + pdname + "' - rename", 4)
+        full_pdname = os.path.join(os.path.dirname(path), pdname)
+        os.rename(path, full_pdname)
 
 def check_mp3_tags(full_path):
 

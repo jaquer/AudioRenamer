@@ -274,4 +274,5 @@ if __name__ == '__main__':
     for arg in sys.argv[1:]:
         main(arg)
 
+    log("")
     log("Process complete: " + strftime("%Y-%m-%d %H:%M:%S"), 2)

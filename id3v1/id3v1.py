@@ -9,7 +9,7 @@ __revision__ = "$Id: $"
 from exceptions import *
 from constants import *
 
-import struct, os
+import struct, os, types
 
 class ID3v1(object):
     """
@@ -156,9 +156,9 @@ class ID3v1(object):
 
     def __setattr__(self, name, value):
         if self.__tag and self.__tag.has_key(name):
-            if name == 'genre' and type(value) != types.IntValue:
+            if name == 'genre' and type(value) != types.IntType:
                 raise TypeError, "genre should be an integer"
-            if name == 'track' and type(value) != types.IntValue:
+            if name == 'track' and type(value) != types.IntType:
                 raise TypeError, "track should be an integer"
             if name == 'year':
                 self.__tag[name] = str(value)[:4]

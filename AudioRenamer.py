@@ -51,7 +51,7 @@ def process_dir(path, file_list, ext):
             t, e = check_flac_tags(full_path)
 
         # create "proper" filename
-        pfname = string.zfill(t['tracknumber'], 2) + " - "
+        pfname = string.zfill(t['tracknumber'], 2) + " "
         if t['album artist'] == 'Various':
             pfname +=  t['artist'] + " - "
         pfname += t['title']

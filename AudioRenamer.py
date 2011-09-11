@@ -248,8 +248,6 @@ flac_allow = ['artist',
               'date',
               'genre',
               'encoder',
-              'discid',
-              'va', # various artists
               'album artist',
               'replaygain_album_gain',
               'replaygain_track_gain',

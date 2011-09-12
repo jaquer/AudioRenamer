@@ -234,11 +234,11 @@ mp3_allow = ['TPE1', # performer
              'TDRC', # date
              'TCON', # genre
              'TENC', # 'encoded by'
+             'TPE2', # 'band', for compilations/album artist
              'TXXX:replaygain_album_gain',
              'TXXX:replaygain_track_gain',
              'TXXX:replaygain_album_peak',
-             'TXXX:replaygain_track_peak',
-             'TXXX:ALBUM ARTIST']
+             'TXXX:replaygain_track_peak']
 
 # FLAC tags allowed
 flac_allow = ['artist',

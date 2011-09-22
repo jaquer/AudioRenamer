@@ -155,11 +155,14 @@ def check_mp3_tags(full_path):
                 v1.title = ptag
             v1.commit()
 
+    if '/' in t['tracknumber']: # tracknumber/tracktotal
+        t['tracknumber'] = t['tracknumber'].split('/')[0]
+
     for item in 'tracknumber', 'date':
         if t1[item] != t[item]:
             e.append("Tag mismatch: 'ID3v1 " + item + "', expected: '" + t[item] + "' - change")
             if item == 'tracknumber':
-                v1.track = t[item]
+                v1.track = int(t[item])
             elif item == 'date':
                 v1.year = t[item]
             v1.commit()
@@ -244,6 +247,7 @@ mp3_allow = ['TPE1', # performer
 flac_allow = ['artist',
               'album',
               'tracknumber',
+              'tracktotal',
               'title',
               'date',
               'genre',

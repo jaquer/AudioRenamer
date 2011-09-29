@@ -232,6 +232,7 @@ def log(msg, lvl=0):
 # MP3 tags allowed
 mp3_allow = ['TPE1', # performer
              'TALB', # album
+             'TPOS', # disc number/total discs
              'TRCK', # track number
              'TIT2', # title
              'TDRC', # date
@@ -246,6 +247,8 @@ mp3_allow = ['TPE1', # performer
 # FLAC tags allowed
 flac_allow = ['artist',
               'album',
+              'discnumber',
+              'disctotal',
               'tracknumber',
               'tracktotal',
               'title',

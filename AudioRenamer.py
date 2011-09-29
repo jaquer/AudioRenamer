@@ -282,3 +282,5 @@ if __name__ == '__main__':
 
     log("")
     log("Process complete: " + strftime("%Y-%m-%d %H:%M:%S"), 2)
+    log("")
+    raw_input("Press ENTER to exit ")

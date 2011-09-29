@@ -109,6 +109,10 @@ def check_mp3_tags(full_path):
     t['tracknumber']  = str(tags['TRCK'][0])
     t['title']        = tags['TIT2'][0]
 
+    # Format multiple artists in single track
+    if " / " in t['artist']:
+        t['artist'] = t['artist'].replace(" / ", ", ")
+
     if 'TDRC' in tags:
         t['date']   = str(tags['TDRC'][0])
     else:
@@ -182,8 +186,14 @@ def check_flac_tags(full_path):
         for item in unallowed:
             e.append("Unallowed tag: '" + item + "' - remove")
 
-    for item in 'artist', 'album', 'tracknumber', 'title', 'date':
+    for item in 'album', 'tracknumber', 'title', 'date':
         t[item] = tags[item][0]
+
+    # Handle multiple artist tags in single track
+    if len(tags['artist']) > 1:
+        t['artist'] = ", ".join(tags['artist'])
+    else:
+        t['artist'] = tags['artist'][0]
 
     if 'date' in tags:
         t['date'] = tags[item][0]

@@ -120,8 +120,8 @@ def check_mp3_tags(full_path):
     else:
         t['genre'] = None
 
-    if 'TXXX:ALBUM ARTIST' in tags:
-        t['album artist'] = tags['TXXX:ALBUM ARTIST'][0]
+    if 'TPE2' in tags:
+        t['album artist'] = tags['TPE2'][0]
     else:
         t['album artist'] = None
 

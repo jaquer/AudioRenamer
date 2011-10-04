@@ -207,7 +207,7 @@ def check_flac_tags(full_path):
         t['genre'] = None
 
     if 'albumartist' in tags:
-        t['album artist'] = "Various"
+        t['album artist'] = tags['albumartist'][0]
     else:
         t['album artist'] = None
 

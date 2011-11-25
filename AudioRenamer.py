@@ -109,10 +109,6 @@ def check_mp3_tags(full_path):
     t['tracknumber']  = str(tags['TRCK'][0])
     t['title']        = tags['TIT2'][0]
 
-    # Format multiple artists in single track
-    if " / " in t['artist']:
-        t['artist'] = t['artist'].replace(" / ", ", ")
-
     if 'TDRC' in tags:
         t['date']   = str(tags['TDRC'][0])
     else:
@@ -170,6 +166,10 @@ def check_mp3_tags(full_path):
             elif item == 'date':
                 v1.year = t[item]
             v1.commit()
+
+    # Format multiple artists in single track
+    if " / " in t['artist']:
+        t['artist'] = t['artist'].replace(" / ", ", ")
 
     return t, e
 

@@ -52,7 +52,7 @@ def process_dir(path, file_list, ext):
 
         # create "proper" filename
         pfname = string.zfill(t['tracknumber'], 2) + " "
-        if t['album artist'] == 'Various':
+        if t['album artist'] and (t['artist'] != t['album artist']):
             pfname +=  t['artist'] + " - "
         pfname += t['title']
 

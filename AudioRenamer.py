@@ -63,10 +63,6 @@ def process_dir(path, file_list, ext):
             full_pfname = os.path.join(os.path.dirname(full_path), pfname)
             os.rename(full_path, full_pfname)
 
-        # soundtrack dirs
-        if t['genre'] == "Soundtrack":
-            t['album artist'] = t['genre']
-
         if e:
             if log_path:
                 log("")
@@ -240,10 +236,6 @@ def safe_dname(artist, album, quality):
         index = string.find(artist, article)
         if index == 0:
             artist = string.replace(artist, article, "", 1) + ", " + article
-
-    index = string.find(album, " (OST)")
-    if index != -1:
-        album = string.replace(album, " (OST)", "", 1)
 
     return "[" + safe_fname(artist) + "] [" + safe_fname(album) + "] " + quality
 

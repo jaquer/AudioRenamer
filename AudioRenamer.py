@@ -156,7 +156,7 @@ def check_mp3_tags(full_path):
             v1.commit()
 
     if '/' in t['tracknumber']: # tracknumber/tracktotal
-        t['tracknumber'] = t['tracknumber'].split('/')[0]
+        t['tracknumber'], t['tracktotal'] = t['tracknumber'].split('/')
 
     for item in 'tracknumber', 'date':
         if t1[item] != t[item]:

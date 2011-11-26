@@ -125,6 +125,9 @@ def check_mp3_tags(full_path):
     else:
         t['album artist'] = None
 
+    if '/' in t['tracknumber']: # tracknumber/tracktotal
+        t['tracknumber'], t['tracktotal'] = t['tracknumber'].split('/')
+
     # id3v1 check
     v1 = ID3v1(full_path)
 
@@ -154,9 +157,6 @@ def check_mp3_tags(full_path):
             elif item == 'title':
                 v1.title = ptag
             v1.commit()
-
-    if '/' in t['tracknumber']: # tracknumber/tracktotal
-        t['tracknumber'], t['tracktotal'] = t['tracknumber'].split('/')
 
     for item in 'tracknumber', 'date':
         if t1[item] != t[item]:

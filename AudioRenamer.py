@@ -125,6 +125,13 @@ def check_mp3_tags(full_path):
     else:
         t['album artist'] = None
 
+    if 'TPOS' in tags:
+        t['discnumber'] = tags['TPOS'][0]
+        if '/' in t['discnumber']:
+            t['discnumber'], t['disctotal'] = t['discnumber'].split('/')
+    else:
+        t['discnumber'] = None
+
     if '/' in t['tracknumber']: # tracknumber/tracktotal
         t['tracknumber'], t['tracktotal'] = t['tracknumber'].split('/')
 
@@ -210,6 +217,11 @@ def check_flac_tags(full_path):
         t['album artist'] = tags['albumartist'][0]
     else:
         t['album artist'] = None
+
+    if t['discnumber'] in tags:
+        t['discnumber'] = tags['discnumber'][0]
+    else
+        t['discnumber'] = None
 
     return t, e
 

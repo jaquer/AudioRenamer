@@ -52,7 +52,7 @@ def process_dir(path, file_list, ext):
 
         # create "proper" filename
         pfname = string.zfill(t['tracknumber'], 2) + " "
-        if t['album artist'] and (t['artist'] != t['album artist']):
+        if t['albumartist'] and (t['artist'] != t['albumartist']):
             pfname +=  t['artist'] + " - "
         pfname += t['title']
 
@@ -77,7 +77,7 @@ def process_dir(path, file_list, ext):
     # create "proper" dirname
     dname = os.path.basename(path)
     quality = dname[string.rfind(dname, "["):]
-    pdname = safe_dname(t['album artist'] or t['artist'], t['album'], quality)
+    pdname = safe_dname(t['albumartist'] or t['artist'], t['album'], quality)
 
     if dname != pdname:
         if log_path:
@@ -108,7 +108,7 @@ def check_mp3_tags(full_path):
             t[item] = tags[frame][0]
 
     # "optional" tags
-    for frame, item in {'TCON': 'genre', 'TPE2': 'album artist', 'TPOS': 'discnumber'}.items():
+    for frame, item in {'TCON': 'genre', 'TPE2': 'albumartist', 'TPOS': 'discnumber'}.items():
         if frame in tags:
             t[item] = tags[frame][0]
         else:

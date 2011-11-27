@@ -225,15 +225,14 @@ def log(msg, lvl=0):
     print " " * lvl + msg.encode(encoding, 'replace')
 
 # MP3 tags allowed
-mp3_allow = ['TPE1', # performer
+mp3_allow = ['TPE1', # artist
              'TALB', # album
-             'TPOS', # disc number/total discs
-             'TRCK', # track number
+             'TPOS', # discnumber/disctotal
+             'TRCK', # tracknumber/tracktotal
              'TIT2', # title
              'TDRC', # date
              'TCON', # genre
-             'TENC', # 'encoded by'
-             'TPE2', # 'band', for compilations/album artist
+             'TPE2', # albumartist
              'TXXX:replaygain_album_gain',
              'TXXX:replaygain_track_gain',
              'TXXX:replaygain_album_peak',

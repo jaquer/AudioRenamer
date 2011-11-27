@@ -100,36 +100,24 @@ def check_mp3_tags(full_path):
         for item in unallowed:
             e.append("Unallowed tag: '" + item[:4] + "' - remove")
 
-    t['artist']       = tags['TPE1'][0]
-    t['album']        = tags['TALB'][0]
-    t['tracknumber']  = str(tags['TRCK'][0])
-    t['title']        = tags['TIT2'][0]
+    # "minimal" tags
+    for frame, item in {'TPE1': 'artist', 'TALB': 'album', 'TRCK': 'tracknumber', 'TIT2': 'title', 'TDRC': 'year'}.items():
+        if not frame in tags:
+            e.append("Tag missing: '" + item + "' - add")
+        else:
+            t[item] = tags[frame][0]
 
-    if 'TDRC' in tags:
-        t['date']   = str(tags['TDRC'][0])
-    else:
-        t['date'] = ''
-        #e.append("Date tag missing - add")
+    # "optional" tags
+    for frame, item in {'TCON': 'genre', 'TPE2': 'album artist', 'TPOS': 'discnumber'}.items():
+        if frame in tags:
+            t[item] = tags[frame][0]
+        else:
+            t[item] = None
 
-    if 'TCON' in tags:
-        t['genre'] = tags['TCON'][0]
-    else:
-        t['genre'] = None
-
-    if 'TPE2' in tags:
-        t['album artist'] = tags['TPE2'][0]
-    else:
-        t['album artist'] = None
-
-    if 'TPOS' in tags:
-        t['discnumber'] = tags['TPOS'][0]
-        if '/' in t['discnumber']:
-            t['discnumber'], t['disctotal'] = t['discnumber'].split('/')
-    else:
-        t['discnumber'] = None
-
-    if '/' in t['tracknumber']: # tracknumber/tracktotal
-        t['tracknumber'], t['tracktotal'] = t['tracknumber'].split('/')
+    # split "nn/mm" [track|disc]number tags
+    for item in 'track', 'disc':
+        if '/' in t[item + 'number']:
+            t[item + 'number'], t[item + 'total'] = t[item + 'number'].split("/")
 
     # id3v1 check
     v1 = ID3v1(full_path)
@@ -189,6 +177,7 @@ def check_flac_tags(full_path):
         for item in unallowed:
             e.append("Unallowed tag: '" + item + "' - remove")
 
+    # "minimal" tags
     for item in 'album', 'tracknumber', 'title', 'date':
         t[item] = tags[item][0]
 
@@ -198,26 +187,12 @@ def check_flac_tags(full_path):
     else:
         t['artist'] = tags['artist'][0]
 
-    if 'date' in tags:
-        t['date'] = tags[item][0]
-    else:
-        t['date'] = ''
-        #e.append("Date tag missing - add")
-
-    if 'genre' in tags:
-        t['genre'] = tags['genre'][0]
-    else:
-        t['genre'] = None
-
-    if 'albumartist' in tags:
-        t['album artist'] = tags['albumartist'][0]
-    else:
-        t['album artist'] = None
-
-    if t['discnumber'] in tags:
-        t['discnumber'] = tags['discnumber'][0]
-    else
-        t['discnumber'] = None
+    # "optional" tags
+    for item in 'tracktotal', 'genre', 'albumartist', 'discnumber', 'disctotal':
+        if item in tags:
+            t[item] = tags[item][0]
+        else:
+            t[item] = None
 
     return t, e
 
@@ -242,7 +217,7 @@ def safe_dname(artist, album, quality):
 def log(msg, lvl=0):
 
     print " " * lvl + msg.encode(encoding, 'replace')
-    
+
 # MP3 tags allowed
 mp3_allow = ['TPE1', # performer
              'TALB', # album
@@ -287,7 +262,7 @@ if __name__ == '__main__':
     if len(sys.argv) == 1:
         log("Usage: " + os.path.basename(sys.argv[0]) + " <directories>")
         sys.exit(0)
-    
+
     log("Starting process: " + strftime("%Y-%m-%d %H:%M:%S"), 2)
     log("")
 

@@ -120,43 +120,7 @@ def check_mp3_tags(full_path):
             t[item + 'number'], t[item + 'total'] = t[item + 'number'].split("/")
 
     # id3v1 check
-    v1 = ID3v1(full_path)
-
-    if v1.comment:
-        e.append("Unallowed tag: 'ID3v1 comment ' - remove")
-
-    t1 = {} # temp dict for id3v1 tags
-    t1['artist']       = unicode(v1.artist, encoding)
-    t1['album']        = unicode(v1.album, encoding)
-    t1['tracknumber']  = str(v1.track)
-    t1['title']        = unicode(v1.title, encoding)
-    t1['date']         = str(v1.year)
-
-    for item in 'artist', 'album', 'title':
-        if len(t[item]) > 30:
-            ptag = t[item][:28] + '..'
-        else:
-            ptag = t[item]
-
-        if t1[item] != ptag:
-            e.append("Tag mismmatch: 'ID3v1 " + item + "', expected: '" + ptag + "' - change")
-            ptag = ptag.encode(encoding)
-            if item == 'artist':
-                v1.artist = ptag
-            elif item == 'album':
-                v1.album = ptag
-            elif item == 'title':
-                v1.title = ptag
-            v1.commit()
-
-    for item in 'tracknumber', 'date':
-        if t1[item] != t[item]:
-            e.append("Tag mismatch: 'ID3v1 " + item + "', expected: '" + t[item] + "' - change")
-            if item == 'tracknumber':
-                v1.track = int(t[item])
-            elif item == 'date':
-                v1.year = t[item]
-            v1.commit()
+    e = clean_id3v1_tags(full_path, t, e)
 
     # Format multiple artists in single track
     if " / " in t['artist']:
@@ -195,6 +159,48 @@ def check_flac_tags(full_path):
             t[item] = None
 
     return t, e
+
+def clean_id3v1_tags(full_path, t, e):
+
+    v1 = ID3v1(full_path)
+
+    if v1.comment:
+        e.append("Unallowed tag: 'ID3v1 comment ' - remove")
+
+    t1 = {} # temp dict for id3v1 tags
+    t1['artist']       = unicode(v1.artist, encoding)
+    t1['album']        = unicode(v1.album, encoding)
+    t1['tracknumber']  = str(v1.track)
+    t1['title']        = unicode(v1.title, encoding)
+    t1['date']         = str(v1.year)
+
+    for item in 'artist', 'album', 'title':
+        if len(t[item]) > 30:
+            ptag = t[item][:28] + '..'
+        else:
+            ptag = t[item]
+
+        if t1[item] != ptag:
+            e.append("Tag mismmatch: 'ID3v1 " + item + "', expected: '" + ptag + "' - change")
+            ptag = ptag.encode(encoding)
+            if item == 'artist':
+                v1.artist = ptag
+            elif item == 'album':
+                v1.album = ptag
+            elif item == 'title':
+                v1.title = ptag
+            v1.commit()
+
+    for item in 'tracknumber', 'date':
+        if t1[item] != t[item]:
+            e.append("Tag mismatch: 'ID3v1 " + item + "', expected: '" + t[item] + "' - change")
+            if item == 'tracknumber':
+                v1.track = int(t[item])
+            elif item == 'date':
+                v1.year = t[item]
+            v1.commit()
+
+    return e
 
 def safe_fname(fname):
 

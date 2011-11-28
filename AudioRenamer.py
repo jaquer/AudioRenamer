@@ -8,7 +8,7 @@ from mutagen.flac import FLAC
 from id3v1 import ID3v1
 from eyeD3 import mp3 as MP3
 
-verbose  = False         # prints paths, dirs as they are checked
+verbose  = True          # prints paths, dirs as they are checked
 encoding = 'iso-8859-1'  # filename/tag encoding
 
 def main(root):

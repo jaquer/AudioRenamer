@@ -101,7 +101,7 @@ def check_mp3_tags(full_path):
             e.append("Unallowed tag: '" + item[:4] + "' - remove")
 
     # "minimal" tags
-    for frame, item in {'TPE1': 'artist', 'TALB': 'album', 'TRCK': 'tracknumber', 'TIT2': 'title', 'TDRC': 'year'}.items():
+    for frame, item in {'TPE1': 'artist', 'TALB': 'album', 'TRCK': 'tracknumber', 'TIT2': 'title', 'TDRC': 'date'}.items():
         if not frame in tags:
             e.append("Tag missing: '" + item + "' - add")
         else:

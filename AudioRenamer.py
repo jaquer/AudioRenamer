@@ -246,6 +246,8 @@ def safe_dname(t):
 
     artist  = t['albumartist'] or t['artist']
     album   = t['album']
+    if t['discnumber']:
+        album += " (Disc " + t['discnumber'] + ")"
     quality = t['quality']
 
     for article in articles:

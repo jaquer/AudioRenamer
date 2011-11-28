@@ -6,6 +6,7 @@ import string
 from mutagen.id3 import ID3
 from mutagen.flac import FLAC
 from id3v1 import ID3v1
+from eyeD3 import mp3 as MP3
 
 verbose  = False         # prints paths, dirs as they are checked
 encoding = 'iso-8859-1'  # filename/tag encoding
@@ -74,10 +75,12 @@ def process_dir(path, file_list, ext):
             for error in e:
                 log(error, 6)
 
+    # determine album "quality"
+    t['quality'] = determine_quality(full_path)
+
     # create "proper" dirname
     dname = os.path.basename(path)
-    quality = dname[string.rfind(dname, "["):]
-    pdname = safe_dname(t['albumartist'] or t['artist'], t['album'], quality)
+    pdname = safe_dname(t['albumartist'] or t['artist'], t['album'], t['quality'])
 
     if dname != pdname:
         if log_path:
@@ -205,6 +208,31 @@ def clean_id3v1_tags(full_path, t, e):
 
     return e
 
+def determine_quality(full_path):
+
+    if full_path.lower().endswith('.flac'):
+        return 'FLAC'
+
+    # this is all very hackish, but it works for me...
+    f = open(full_path, 'rb')
+    pos, header, bytes = MP3.find_header(f, ID3(full_path).size)
+
+    if header:
+        header = MP3.Header(header)
+    else:
+        return 'UNK'
+
+    f.seek(pos)
+    frame = f.read(header.frameLength)
+    f.close()
+
+    lametag = MP3.LameTag(frame)
+
+    if lametag:
+        return lametag['preset']
+    else:
+        return 'UNK'
+
 def safe_fname(fname):
 
     import re
@@ -221,7 +249,7 @@ def safe_dname(artist, album, quality):
         if index == 0:
             artist = string.replace(artist, article, "", 1) + ", " + article
 
-    return "[" + safe_fname(artist) + "] [" + safe_fname(album) + "] " + quality
+    return "[" + safe_fname(artist) + "] [" + safe_fname(album) + "] [" + quality + "]"
 
 def log(msg, lvl=0):
 

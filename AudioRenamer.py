@@ -80,7 +80,7 @@ def process_dir(path, file_list, ext):
 
     # create "proper" dirname
     dname = os.path.basename(path)
-    pdname = safe_dname(t['albumartist'] or t['artist'], t['album'], t['quality'])
+    pdname = safe_dname(t)
 
     if dname != pdname:
         if log_path:
@@ -242,7 +242,11 @@ def safe_fname(fname):
 
     return string.strip(fname)
 
-def safe_dname(artist, album, quality):
+def safe_dname(t):
+
+    artist  = t['albumartist'] or t['artist']
+    album   = t['album']
+    quality = t['quality']
 
     for article in articles:
         index = string.find(artist, article)

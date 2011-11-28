@@ -107,6 +107,9 @@ def check_mp3_tags(full_path):
         else:
             t[item] = tags[frame][0]
 
+    # ID3 date tags are their own distinct type in Mutagen
+    t['date'] = unicode(t['date'])
+
     # "optional" tags
     for frame, item in {'TCON': 'genre', 'TPE2': 'albumartist', 'TPOS': 'discnumber'}.items():
         if frame in tags:
@@ -116,7 +119,7 @@ def check_mp3_tags(full_path):
 
     # split "nn/mm" [track|disc]number tags
     for item in 'track', 'disc':
-        if '/' in t[item + 'number']:
+        if '/' in str(t[item + 'number']):
             t[item + 'number'], t[item + 'total'] = t[item + 'number'].split("/")
 
     # id3v1 check
@@ -170,9 +173,9 @@ def clean_id3v1_tags(full_path, t, e):
     t1 = {} # temp dict for id3v1 tags
     t1['artist']       = unicode(v1.artist, encoding)
     t1['album']        = unicode(v1.album, encoding)
-    t1['tracknumber']  = str(v1.track)
+    t1['tracknumber']  = unicode(str(v1.track), encoding)
     t1['title']        = unicode(v1.title, encoding)
-    t1['date']         = str(v1.year)
+    t1['date']         = unicode(str(v1.year), encoding)
 
     for item in 'artist', 'album', 'title':
         if len(t[item]) > 30:
@@ -197,7 +200,7 @@ def clean_id3v1_tags(full_path, t, e):
             if item == 'tracknumber':
                 v1.track = int(t[item])
             elif item == 'date':
-                v1.year = t[item]
+                v1.year = str(t[item])
             v1.commit()
 
     return e

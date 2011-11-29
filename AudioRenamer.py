@@ -76,7 +76,7 @@ def process_dir(path, file_list, ext):
                 log(error, 6)
 
     # determine album "quality"
-    t['quality'] = determine_quality(full_path)
+    t['quality'] = determine_quality(path, ext)
 
     # create "proper" dirname
     dname = os.path.basename(path)
@@ -208,10 +208,14 @@ def clean_id3v1_tags(full_path, t, e):
 
     return e
 
-def determine_quality(full_path):
+def determine_quality(path, ext):
 
-    if full_path.lower().endswith('.flac'):
+    if ext == 'flac':
         return 'FLAC'
+
+    for filename in os.listdir(path):
+        if filename.lower().endswith('.mp3'):
+            full_path = os.path.join(path, filename)
 
     # this is all very hackish, but it works for me...
     f = open(full_path, 'rb')

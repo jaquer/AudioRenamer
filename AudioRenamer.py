@@ -236,7 +236,7 @@ def determine_quality(path, ext):
     l = MP3.LameTag(frame)
 
     if l:
-        if l['preset'] != 'Unknown':
+        if 'preset' in l and l['preset'] != 'Unknown':
             return l['preset']
         else:
             if not l['encoder_version'] in ['LAME3.90.', 'LAME3.92']:

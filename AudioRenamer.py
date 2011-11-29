@@ -226,10 +226,27 @@ def determine_quality(full_path):
     frame = f.read(header.frameLength)
     f.close()
 
-    lametag = MP3.LameTag(frame)
+    x = MP3.XingHeader()
+    x.decode(frame)
 
-    if lametag:
-        return lametag['preset']
+    l = MP3.LameTag(frame)
+
+    if l:
+        if l['preset'] != 'Unknown':
+            return l['preset']
+        else:
+            if not l['encoder_version'] in ['LAME3.90.', 'LAME3.92']:
+                # not a known LAME version
+                return 'UNK'
+            if l['ath_type'] == 3 or l['vbr_method'] == 'Variable Bitrate method2 (mtrh)':
+                # not APS/X
+                return 'UNK'
+            elif l['stereo_mode'].lower() == 'joint' and '--nssafejoint' in l['encoding_flags']:
+                if (l['noise_shaping'] == 1 or l['noise_shaping'] == 2) and x.vbrScale == 78 and l['vbr_method'] == 'Variable Bitrate method1 (old/rh)':
+                    if l['lowpass_filter'] == 19000:
+                        return 'APS'
+                    elif (l['lowpass_filter'] == 19500 and l['encoder_version'] == 'LAME3.92') or (l['lowpass_filter'] == 19600 and l['encoder_version'] == 'LAME3.90.'):
+                        return 'APX'
     else:
         return 'UNK'
 

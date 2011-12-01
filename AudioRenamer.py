@@ -218,7 +218,7 @@ def determine_quality(path, ext):
     if ext == 'flac':
         return 'FLAC'
 
-    full_path = find_first('mp3')
+    full_path = find_first(path, 'mp3')
 
     # this is all very hackish, but it works for me...
     f = open(full_path, 'rb')

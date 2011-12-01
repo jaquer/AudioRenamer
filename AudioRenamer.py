@@ -1,5 +1,6 @@
 import os
 import fnmatch
+import re
 import sys
 import string
 
@@ -276,10 +277,9 @@ def rename_extras(path, t):
 
 def safe_fname(fname):
 
-    import re
-    fname, subs = re.subn(r':|\*|<|>|\||\?|\\|/|"|\$|  ', ' ', fname)
+    fname, subs = invalid_chars.subn(' ', fname)
     while subs != 0:
-        fname, subs = re.subn(r':|\*|<|>|\||\?|\\|/|"|\$|  ', ' ', fname)
+        fname, subs = invalid_chars.subn(' ', fname)
 
     return string.strip(fname)
 
@@ -334,6 +334,8 @@ flac_allow = ['artist',
               'replaygain_track_peak']
 
 articles = ['The ', 'El ', 'La ', 'Los ', 'Las ']
+
+invalid_chars = re.compile(r':|\*|<|>|\||\?|\\|/|"|\$|  ')
 
 if __name__ == '__main__':
 

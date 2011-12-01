@@ -216,9 +216,7 @@ def determine_quality(path, ext):
     if ext == 'flac':
         return 'FLAC'
 
-    for filename in os.listdir(path):
-        if filename.lower().endswith('.mp3'):
-            full_path = os.path.join(path, filename)
+    full_path = find_first('mp3')
 
     # this is all very hackish, but it works for me...
     f = open(full_path, 'rb')
@@ -256,6 +254,13 @@ def determine_quality(path, ext):
                         return 'APX'
     else:
         return 'UNK'
+
+def find_first(path, ext):
+
+    for filename in os.listdir(path):
+        if filename.lower().endswith('.' + ext):
+            return os.path.join(path, filename)
+
 
 def safe_fname(fname):
 

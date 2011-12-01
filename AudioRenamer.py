@@ -75,6 +75,8 @@ def process_dir(path, file_list, ext):
             for error in e:
                 log(error, 6)
 
+    rename_extras(path, t)
+
     # determine album "quality"
     t['quality'] = determine_quality(path, ext)
 
@@ -261,6 +263,16 @@ def find_first(path, ext):
         if filename.lower().endswith('.' + ext):
             return os.path.join(path, filename)
 
+def rename_extras(path, t):
+
+    base = os.path.join(path, "00 " + (t['albumartist'] or t['artist']) + " - " + t['album'])
+
+    for item, ext in {'cover': 'jpg', 'cuesheet': 'cue', 'log file': 'log'}.items():
+        fname = find_first(path, ext)
+        pname = base + "." + ext
+        if fname and fname != pname:
+            log("Wrong " + item + " name, expected: '" + os.path.basename(pname) + "' - rename", 6)
+            os.rename(fname, pname)
 
 def safe_fname(fname):
 

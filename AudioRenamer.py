@@ -52,6 +52,9 @@ def process_dir(path, file_list, ext):
         elif ext == 'flac':
             t, e = check_flac_tags(full_path)
 
+        for item in 'artist', 'album', 'title', 'albumartist':
+            e = check_unallowed_pattern(item, t[item], e)
+
         # create "proper" filename
         pfname = string.zfill(t['tracknumber'], 2) + " "
         if t['albumartist'] and (t['artist'] != t['albumartist']):
@@ -298,6 +301,21 @@ def safe_dname(t):
 
     return "[" + safe_fname(artist) + "] [" + safe_fname(album) + "] [" + quality + "]"
 
+def check_unallowed_pattern(item, value, e):
+
+    if value == None:
+        return e
+
+    pos = 0
+    for desc, pat in unallowed_patterns.items():
+        match = pat.search(value, pos)
+        while match != None:
+            pos = match.start() + 1
+            e.append("Unallowed pattern in '" + item + "': " + desc + " at/near position " + str(pos) + " - correct")
+            match = pat.search(value, pos)
+
+    return e
+
 def log(msg, lvl=0):
 
     print " " * lvl + msg.encode(encoding, 'replace')
@@ -336,6 +354,10 @@ flac_allow = ['artist',
 articles = ['The ', 'El ', 'La ', 'Los ', 'Las ']
 
 invalid_chars = re.compile(r':|\*|<|>|\||\?|\\|/|"|\$|  ')
+
+unallowed_patterns = {"leading space": re.compile(r'^\s+'),
+                      "two or more contiguous spaces": re.compile(r'\s{2,}'),
+                      "initial lowercase letter": re.compile(r'^[a-z]|\s[a-z]')}
 
 if __name__ == '__main__':
 

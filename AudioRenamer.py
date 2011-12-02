@@ -275,7 +275,7 @@ def rename_extras(path, t):
         fname = find_first(path, ext)
         pname = base + "." + ext
         if fname and fname != pname:
-            log("Wrong " + item + " name, expected: '" + os.path.basename(pname) + "' - rename", 6)
+            log("Wrong " + item + " name, expected: '" + os.path.basename(pname) + "' - rename", 4)
             os.rename(fname, pname)
 
 def safe_fname(fname):

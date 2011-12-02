@@ -269,7 +269,7 @@ def find_first(path, ext):
 
 def rename_extras(path, t):
 
-    base = os.path.join(path, "00 " + (t['albumartist'] or t['artist']) + " - " + t['album'])
+    base = os.path.join(path, safe_fname("00 " + (t['albumartist'] or t['artist']) + " - " + t['album']))
 
     for item, ext in {'cover': 'jpg', 'cuesheet': 'cue', 'log file': 'log'}.items():
         fname = find_first(path, ext)

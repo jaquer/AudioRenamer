@@ -328,7 +328,6 @@ mp3_allow = ['TPE1', # artist
              'TRCK', # tracknumber/tracktotal
              'TIT2', # title
              'TDRC', # date
-             'TCON', # genre
              'TPE2', # albumartist
              'TXXX:replaygain_album_gain',
              'TXXX:replaygain_track_gain',
@@ -344,8 +343,6 @@ flac_allow = ['artist',
               'tracktotal',
               'title',
               'date',
-              'genre',
-              'encoder',
               'albumartist',
               'replaygain_album_gain',
               'replaygain_track_gain',

@@ -1,5 +1,4 @@
 import os
-import fnmatch
 import re
 import sys
 import string
@@ -21,8 +20,9 @@ def main(root):
 
         for ext in 'mp3', 'flac':
             file_list = []
-            for fname in fnmatch.filter(fnames, "*." + ext):
-                file_list.append(fname)
+            for fname in fnames:
+                if fname.lower().endswith('.' + ext):
+                    file_list.append(fname)
             if file_list:
                 process_dir(path, file_list, ext)
 

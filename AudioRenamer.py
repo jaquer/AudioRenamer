@@ -9,7 +9,6 @@ from mutagen.flac import FLAC
 from id3v1 import ID3v1
 from eyeD3 import mp3 as MP3
 
-verbose  = True          # prints paths, dirs as they are checked
 encoding = 'iso-8859-1'  # filename/tag encoding
 
 def main(root):
@@ -29,22 +28,15 @@ def main(root):
 
 def process_dir(path, file_list, ext):
 
-    log_path = True
-
-    if verbose:
-        log("")
-        log(path, 2)
-        log_path = False
+    log("")
+    log(path, 2)
 
     file_list.sort()
 
     for fname in file_list:
 
-        log_fname = True
+        log(fname, 4)
 
-        if verbose:
-            log(fname, 4)
-            log_fname = False
         full_path = os.path.join(path, fname)
 
         # tag-checking loop: different based on format
@@ -70,13 +62,6 @@ def process_dir(path, file_list, ext):
             os.rename(full_path, full_pfname)
 
         if e:
-            if log_path:
-                log("")
-                log(path, 2)
-                log_path = False
-            if log_fname:
-                log(fname, 4)
-                log_fname = False
             for error in e:
                 log(error, 6)
 
@@ -90,9 +75,6 @@ def process_dir(path, file_list, ext):
     pdname = safe_dname(t)
 
     if dname != pdname:
-        if log_path:
-            log("")
-            log(path, 2)
         log("Wrong directory name, expected: '" + pdname + "' - rename", 4)
         full_pdname = os.path.join(os.path.dirname(path), pdname)
         os.rename(path, full_pdname)

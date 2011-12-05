@@ -41,8 +41,12 @@ def process_dir(path, file_list, ext):
 
         # tag-checking loop: different based on format
         if ext == 'mp3':
+            if (reset_tags):
+                reset_mp3_tags(full_path)
             t, e = check_mp3_tags(full_path)
         elif ext == 'flac':
+            if (reset_tags):
+                reset_flac_tags(full_path)
             t, e = check_flac_tags(full_path)
 
         for item in 'artist', 'album', 'title', 'albumartist':
@@ -125,6 +129,24 @@ def check_mp3_tags(full_path):
         t['artist'] = t['artist'].replace(" / ", ", ")
 
     return t, e
+
+def reset_mp3_tags(full_path):
+
+    # pseudo-code:
+    # cd to dirname(full_path) (id3.exe craps out on UNC paths)
+    # C:\bin\id3.exe -v -21d -s 1024 -talny %%t %%a %%l %%n %%y *.mp3
+    # done! man, I love that little program
+    # oh, cd to pwd
+    pass
+
+def reset_flac_tags(full_path):
+
+    # pseudo-code:
+    # run tag.exe to see if FLAC has ID3v1/2 tags (yech)
+    # if so, remove them (mutagen? or C:\bin\tag.exe --hideinfo --hidetags --remove --force flac <full_path>)
+    # remove pictures (again, mutagen? or C:\bin\metaflac.exe --remove --block-type=PICTURE --dont-use-padding <full_path>)
+    # find unallowed tags and remove them (use code from check_flac_tags)
+    pass
 
 def check_flac_tags(full_path):
 
@@ -339,13 +361,19 @@ unallowed_patterns = {"leading space": re.compile(r'^\s+'),
                       "two or more contiguous spaces": re.compile(r'\s{2,}'),
                       "initial lowercase letter": re.compile(r'^[a-z]|\s[a-z]')}
 
+reset_tags = False
+
 if __name__ == '__main__':
 
     log("AudioRenamer - It renames audio files")
     log("")
 
+    if '--reset' in sys.argv:
+        reset_tags = True
+        sys.argv.remove('--reset')
+
     if len(sys.argv) == 1:
-        log("Usage: " + os.path.basename(sys.argv[0]) + " <directories>")
+        log("Usage: " + os.path.basename(sys.argv[0]) + "[--reset] <directories>")
         sys.exit(0)
 
     start = datetime.datetime.now()

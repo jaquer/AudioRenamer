@@ -1,3 +1,4 @@
+import datetime
 import os
 import re
 import sys
@@ -361,8 +362,6 @@ unallowed_patterns = {"leading space": re.compile(r'^\s+'),
 
 if __name__ == '__main__':
 
-    from time import strftime
-
     log("AudioRenamer - It renames audio files")
     log("")
 
@@ -370,13 +369,12 @@ if __name__ == '__main__':
         log("Usage: " + os.path.basename(sys.argv[0]) + " <directories>")
         sys.exit(0)
 
-    log("Starting process: " + strftime("%Y-%m-%d %H:%M:%S"), 2)
-    log("")
+    start = datetime.datetime.now()
 
     for arg in sys.argv[1:]:
         main(arg)
 
     log("")
-    log("Process complete: " + strftime("%Y-%m-%d %H:%M:%S"), 2)
+    log("Process complete. Excecution time: " + str(datetime.datetime.now() - start), 2)
     log("")
     raw_input("Press ENTER to exit ")

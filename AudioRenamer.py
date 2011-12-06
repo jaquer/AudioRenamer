@@ -95,7 +95,7 @@ def check_mp3_tags(full_path):
     tags = ID3(full_path)
 
     if tags.version != (2, 3, 0):
-        e.append("Incorrect ID3v2 version: '" + ".".join(str(x) for x in tags.version) + "' - change")
+        e.append("Incorrect ID3v2 version: '" + ".".join(map(str, tags.version)) + "' - change")
 
     unallowed = set(tags.keys()).difference(mp3_allow)
 

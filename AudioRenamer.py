@@ -1,6 +1,7 @@
 import datetime
 import os
 import re
+import subprocess
 import sys
 import string
 
@@ -43,6 +44,7 @@ def process_dir(path, file_list, ext):
         if ext == 'mp3':
             if (reset_tags):
                 reset_mp3_tags(full_path)
+                log("Tags reset", 6)
             t, e = check_mp3_tags(full_path)
         elif ext == 'flac':
             if (reset_tags):
@@ -132,12 +134,10 @@ def check_mp3_tags(full_path):
 
 def reset_mp3_tags(full_path):
 
-    # pseudo-code:
-    # cd to dirname(full_path) (id3.exe craps out on UNC paths)
-    # C:\bin\id3.exe -v -21d -s 1024 -talny %%t %%a %%l %%n %%y *.mp3
-    # done! man, I love that little program
-    # oh, cd to pwd
-    pass
+    path = os.path.dirname(full_path)
+    fname = os.path.basename(full_path)
+
+    subprocess.call(['id3', '-21d', '-s', '1024', '-alnty', '%a', '%l', '%n', '%t', '%y', fname], cwd=path)
 
 def reset_flac_tags(full_path):
 

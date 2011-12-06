@@ -49,6 +49,7 @@ def process_dir(path, file_list, ext):
         elif ext == 'flac':
             if (reset_tags):
                 reset_flac_tags(full_path)
+                log("Tags reset", 6)
             t, e = check_flac_tags(full_path)
 
         for item in 'artist', 'album', 'title', 'albumartist':
@@ -141,12 +142,18 @@ def reset_mp3_tags(full_path):
 
 def reset_flac_tags(full_path):
 
-    # pseudo-code:
-    # run tag.exe to see if FLAC has ID3v1/2 tags (yech)
-    # if so, remove them (mutagen? or C:\bin\tag.exe --hideinfo --hidetags --remove --force flac <full_path>)
-    # remove pictures (again, mutagen? or C:\bin\metaflac.exe --remove --block-type=PICTURE --dont-use-padding <full_path>)
-    # find unallowed tags and remove them (use code from check_flac_tags)
-    pass
+    f = FLAC(full_path)
+
+    t = f.tags
+
+    f.clear_pictures()
+
+    f.delete()
+
+    for item in 'artist', 'album', 'tracknumber', 'tracktotal', 'title', 'date':
+        f[item] = t[item]
+
+    f.save(deleteid3=True)
 
 def check_flac_tags(full_path):
 

@@ -376,6 +376,8 @@ if __name__ == '__main__':
     log("")
 
     if '--reset' in sys.argv:
+        if raw_input("Are you sure you want to reset tags? Press ENTER to confirm ") != "":
+            sys.exit(0)
         reset_tags = True
         sys.argv.remove('--reset')
 

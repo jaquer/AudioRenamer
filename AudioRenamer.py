@@ -7,6 +7,7 @@ import string
 
 from mutagen.id3 import ID3
 from mutagen.flac import FLAC
+from mutagen.flac import VCFLACDict
 from id3v1 import ID3v1
 from eyeD3 import mp3 as MP3
 
@@ -146,12 +147,21 @@ def reset_flac_tags(full_path):
 
     t = f.tags
 
+    # we need to save the 'vendor' string because calling mutagen's delete() removes it too
+    for block in list(f.metadata_blocks):
+        if isinstance(block, VCFLACDict):
+            vendor = block.vendor
+
     f.clear_pictures()
 
     f.delete()
 
     for item in 'artist', 'album', 'tracknumber', 'tracktotal', 'title', 'date':
         f[item] = t[item]
+
+    for block in list(f.metadata_blocks):
+        if isinstance(block, VCFLACDict):
+            block.vendor = vendor
 
     f.save(deleteid3=True)
 

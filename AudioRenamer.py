@@ -139,7 +139,7 @@ def reset_mp3_tags(full_path):
     path = os.path.dirname(full_path)
     fname = os.path.basename(full_path)
 
-    subprocess.call(['id3', '-21d', '-s', '1024', '-alnty', '%a', '%l', '%n', '%t', '%y', fname], cwd=path)
+    subprocess.call(['id3', '-21d', '-s', '1024', '-alnty', '%a', '%l', '%n', '%t', '%y', fname.encode(encoding)], cwd=path.encode(encoding))
 
 def reset_flac_tags(full_path):
 

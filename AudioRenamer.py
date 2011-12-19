@@ -284,8 +284,7 @@ def determine_quality(path, ext):
                         return 'APS'
                     elif (l['lowpass_filter'] == 19500 and l['encoder_version'] == 'LAME3.92') or (l['lowpass_filter'] == 19600 and l['encoder_version'] == 'LAME3.90.'):
                         return 'APX'
-    else:
-        return 'UNK'
+    return 'UNK'
 
 def find_first(path, ext):
 

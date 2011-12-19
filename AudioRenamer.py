@@ -265,6 +265,10 @@ def determine_quality(path, ext):
     l = MP3.LameTag(frame)
 
     if l:
+        # these are the keys we need to have present in LAME tag
+        for item in 'ath_type', 'vbr_method', 'stereo_mode', 'encoding_flags', 'noise_shaping', 'lowpass_filter':
+            if not item in l:
+                return 'UNK'
         if 'preset' in l and l['preset'] != 'Unknown':
             return l['preset']
         else:

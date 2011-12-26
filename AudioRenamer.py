@@ -157,7 +157,8 @@ def reset_flac_tags(full_path):
     f.delete()
 
     for item in 'artist', 'album', 'tracknumber', 'tracktotal', 'title', 'date':
-        f[item] = t[item]
+        if item in t:
+            f[item] = t[item]
 
     for block in list(f.metadata_blocks):
         if isinstance(block, VCFLACDict):

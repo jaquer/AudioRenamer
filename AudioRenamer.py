@@ -4,6 +4,7 @@ import re
 import subprocess
 import sys
 import string
+import struct
 
 from mutagen.id3 import ID3
 from mutagen.flac import FLAC
@@ -74,6 +75,8 @@ def process_dir(path, file_list, ext):
                 log(error, 6)
 
     rename_extras(path, t)
+
+    check_cover(path)
 
     # determine album "quality"
     t['quality'] = determine_quality(path, ext)
@@ -286,6 +289,57 @@ def determine_quality(path, ext):
                     elif (l['lowpass_filter'] == 19500 and l['encoder_version'] == 'LAME3.92') or (l['lowpass_filter'] == 19600 and l['encoder_version'] == 'LAME3.90.'):
                         return 'APX'
     return 'UNK'
+
+def check_cover(path):
+
+    cover = find_first(path, 'jpg')
+
+    if not cover:
+        log("No cover image found", 4)
+        return
+
+    width, height = jpeg_dimensions(cover)
+
+    if (width < 600) and (height < 600):
+        log("Cover image too small: "  + str(width) + "x" + str(height), 4)
+        return
+
+    if (width > 600) and (height > 600):
+        log("Cover image too large: "  + str(width) + "x" + str(height), 4)
+        return
+
+def jpeg_dimensions(jpeg):
+
+    # adapted from
+    # https://code.google.com/p/bfg-pages/source/browse/trunk/pages/getimageinfo.py
+
+    width = -1
+    height = -1
+
+    jpeg = open(jpeg, 'rb')
+
+    if jpeg.read(2) == '\377\330':
+
+        b = jpeg.read(1)
+        try:
+            while (b and ord(b) != 0xDA):
+                while (ord(b) != 0xFF): b = jpeg.read(1)
+                while (ord(b) == 0xFF): b = jpeg.read(1)
+                if (ord(b) >= 0xC0 and ord(b) <= 0xC3):
+                    jpeg.read(3)
+                    h, w = struct.unpack(">HH", jpeg.read(4))
+                    break
+                else:
+                    jpeg.read(int(struct.unpack(">H", jpeg.read(2))[0])-2)
+                b = jpeg.read(1)
+            width = int(w)
+            height = int(h)
+        except struct.error:
+            pass
+        except ValueError:
+            pass
+
+    return width, height
 
 def find_first(path, ext):
 

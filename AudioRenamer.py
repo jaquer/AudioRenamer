@@ -128,7 +128,8 @@ def check_mp3_tags(full_path):
             t[item + 'number'], t[item + 'total'] = t[item + 'number'].split("/")
 
     # id3v1 check
-    e = clean_id3v1_tags(full_path, t, e)
+    if clean_id3v1:
+        e = clean_id3v1_tags(full_path, t, e)
 
     # Format multiple artists in single track
     if " / " in t['artist']:
@@ -436,6 +437,7 @@ unallowed_patterns = {"leading space": re.compile(r'^\s+'),
                       "initial lowercase letter": re.compile(r'^[a-z]|\s[a-z]')}
 
 reset_tags = False
+clean_id3v1 = False
 
 if __name__ == '__main__':
 
@@ -447,6 +449,10 @@ if __name__ == '__main__':
             sys.exit(0)
         reset_tags = True
         sys.argv.remove('--reset')
+
+    if '--clean-id3v1' in sys.argv:
+        clean_id3v1 = True
+        sys.argv.remove('--clean-id3v1')
 
     if len(sys.argv) == 1:
         log("Usage: " + os.path.basename(sys.argv[0]) + "[--reset] <directories>")

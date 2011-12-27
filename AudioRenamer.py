@@ -38,8 +38,6 @@ def process_dir(path, file_list, ext):
 
     for fname in file_list:
 
-        log(fname, 4)
-
         full_path = os.path.join(path, fname)
 
         # tag-checking loop: different based on format
@@ -71,6 +69,7 @@ def process_dir(path, file_list, ext):
             os.rename(full_path, full_pfname)
 
         if e:
+            log(fname, 4)
             for error in e:
                 log(error, 6)
 

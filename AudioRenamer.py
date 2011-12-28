@@ -39,18 +39,19 @@ def process_dir(path, file_list, ext):
     for fname in file_list:
 
         full_path = os.path.join(path, fname)
+        e = []
 
         # tag-checking loop: different based on format
         if ext == 'mp3':
             if (reset_tags):
                 reset_mp3_tags(full_path)
-                log("Tags reset", 6)
-            t, e = check_mp3_tags(full_path)
+                e.append("Tags reset")
+            t, e = check_mp3_tags(full_path, e)
         elif ext == 'flac':
             if (reset_tags):
                 reset_flac_tags(full_path)
-                log("Tags reset", 6)
-            t, e = check_flac_tags(full_path)
+                e.append("Tags reset")
+            t, e = check_flac_tags(full_path, e)
 
         for item in 'artist', 'album', 'title', 'albumartist':
             e = check_unallowed_pattern(item, t[item], e)
@@ -89,10 +90,9 @@ def process_dir(path, file_list, ext):
         full_pdname = os.path.join(os.path.dirname(path), pdname)
         os.rename(path, full_pdname)
 
-def check_mp3_tags(full_path):
+def check_mp3_tags(full_path, e):
 
     t = {} # "proper" tags
-    e = [] # errors
 
     tags = ID3(full_path)
 
@@ -169,10 +169,9 @@ def reset_flac_tags(full_path):
 
     f.save(deleteid3=True)
 
-def check_flac_tags(full_path):
+def check_flac_tags(full_path, e):
 
     t = {} # "proper" tags
-    e = [] # errors
 
     tags = FLAC(full_path)
 

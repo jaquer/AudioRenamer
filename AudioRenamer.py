@@ -7,10 +7,10 @@ import string
 import struct
 
 from mutagen.id3 import ID3
+from mutagen.mp3 import MPEGInfo
 from mutagen.flac import FLAC
 from mutagen.flac import VCFLACDict
 from id3v1 import ID3v1
-from eyeD3 import mp3 as MP3
 
 encoding = 'iso-8859-1'  # filename/tag encoding
 
@@ -249,45 +249,20 @@ def determine_quality(path, ext):
 
     full_path = find_first(path, 'mp3')
 
-    # this is all very hackish, but it works for me...
-    f = open(full_path, 'rb')
-    pos, header, bytes = MP3.find_header(f, ID3(full_path).size)
+    try:
+        info = MPEGInfo(open(full_path, 'rb'))
+    except:
+        # this means the file is missing its MPEG header!
+        return 'ERROR'
 
-    if header:
-        header = MP3.Header(header)
+    if info.lame_preset:
+        # possible presets: '-r3mix' (!), '-ap[msxi]' '-apf[msx]', '-b 320' and '-V[0-9n]'
+        # the strip() takes care of all unwanted characters
+        return info.lame_preset.strip('-bn ').upper()
     else:
+        # TODO: needs testing
+        #return str(info.bitrate / 1000) + 'KB'
         return 'UNK'
-
-    f.seek(pos)
-    frame = f.read(header.frameLength)
-    f.close()
-
-    x = MP3.XingHeader()
-    x.decode(frame)
-
-    l = MP3.LameTag(frame)
-
-    if l:
-        # these are the keys we need to have present in LAME tag
-        for item in 'ath_type', 'vbr_method', 'stereo_mode', 'encoding_flags', 'noise_shaping', 'lowpass_filter':
-            if not item in l:
-                return 'UNK'
-        if 'preset' in l and l['preset'] != 'Unknown':
-            return l['preset']
-        else:
-            if not l['encoder_version'] in ['LAME3.90.', 'LAME3.92']:
-                # not a known LAME version
-                return 'UNK'
-            if l['ath_type'] == 3 or l['vbr_method'] == 'Variable Bitrate method2 (mtrh)':
-                # not APS/X
-                return 'UNK'
-            elif l['stereo_mode'].lower() == 'joint' and '--nssafejoint' in l['encoding_flags']:
-                if (l['noise_shaping'] == 1 or l['noise_shaping'] == 2) and x.vbrScale == 78 and l['vbr_method'] == 'Variable Bitrate method1 (old/rh)':
-                    if l['lowpass_filter'] == 19000:
-                        return 'APS'
-                    elif (l['lowpass_filter'] == 19500 and l['encoder_version'] == 'LAME3.92') or (l['lowpass_filter'] == 19600 and l['encoder_version'] == 'LAME3.90.'):
-                        return 'APX'
-    return 'UNK'
 
 def check_cover(path):
 

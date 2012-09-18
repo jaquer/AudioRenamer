@@ -40,6 +40,15 @@ class MPEGInfo(object):
     protected -- whether or not the file is "protected"
     padding -- whether or not audio frames are padded
     sample_rate -- audio sample rate, in Hz
+    encoder -- 9 character encoder string
+    lame_preset -- LAME quality preset used during encoding (if any)
+    lame_info -- dict containing LAME-specific metadata
+
+    Useless LAME attributes (stored in the lame_info dict):
+    vbr_method -- ABR, VBR old/VBR RH, VBR MTRH, VBR MT (2-5)
+    lowpass -- lowpass filter value
+    ath_type -- ATH type
+    preset -- preset level (1-2047, 0 is unknown/unused)
     """
 
     # Map (version, layer) tuples to bitrates.
@@ -62,6 +71,9 @@ class MPEGInfo(object):
         }
 
     sketchy = False
+    encoder = None
+    lame_preset = None
+    lame_info = None
 
     def __init__(self, fileobj, offset=None):
         """Parse MPEG stream information from a file-like object.
@@ -171,8 +183,13 @@ class MPEGInfo(object):
         # and bitrate calculation.
         fileobj.seek(offset, 0)
         data = fileobj.read(32768)
+        lame_cbr = False
         try:
-            xing = data[:-4].index("Xing")
+            try:
+                xing = data[:-4].index("Xing")
+            except ValueError:
+                xing = data[:-4].index("Info")
+                lame_cbr = True
         except ValueError:
             # Try to find/parse the VBRI header, which trumps the above length
             # calculation.
@@ -196,9 +213,21 @@ class MPEGInfo(object):
                 frame_count = struct.unpack('>I', data[xing + 8:xing + 12])[0]
                 samples = frame_size * frame_count
                 self.length = (samples / self.sample_rate) or self.length
-            if flags & 0x2:
+            if not lame_cbr and flags & 0x2:
                 bytes = struct.unpack('>I', data[xing + 12:xing + 16])[0]
                 self.bitrate = int((bytes * 8) // self.length)
+            self.encoder = data[xing + 120:xing + 129]
+
+        if self.encoder and self.encoder.startswith('LAME'):
+            lame = xing + 120
+            linfo = {}
+            linfo['vbr_method'] = struct.unpack('B', data[lame + 9])[0] & 0xF
+            linfo['lowpass'] = struct.unpack('B', data[lame + 10])[0]
+            linfo['ath_type'] = struct.unpack('B', data[lame + 19])[0] & 0xF
+            linfo['preset'] = struct.unpack('>H', data[lame + 26:lame + 28]
+                                            )[0] & 0x1FF
+            self.lame_info = linfo
+            self.lame_preset = self._guess_lame_preset()
 
         # If the bitrate * the length is nowhere near the file
         # length, recalculate using the bitrate and file length.
@@ -215,6 +244,59 @@ class MPEGInfo(object):
             self.length)
         if self.sketchy: s += " (sketchy)"
         return s
+
+    def _guess_lame_preset(self):
+        vbr_method = self.lame_info['vbr_method']
+        lowpass = self.lame_info['lowpass']
+        ath_type = self.lame_info['ath_type']
+        preset = self.lame_info['preset']
+
+        if preset == 320:
+            return '-b 320'
+        elif preset in range(410, 501, 10):
+            if vbr_method == 4:
+                return '-V%dn' % ((500 - preset) / 10)
+            else:
+                return '-V%d' % ((500 - preset) / 10)
+        else:
+            presets = ('-r3mix', '-aps', '-ape', '-api', '-apfs', '-apfe',
+                       '-apm', '-apfm')
+            try:
+                return presets[preset - 1001]
+            except IndexError:
+                pass
+
+        try:
+            major, minor = self.encoder[4:8].split('.', 1)
+            version = (int(major), int(minor))
+        except ValueError:
+            version = (-1, 0)
+
+        if version < (3, 90) and version > (0, 0):
+            if vbr_method == 8 and lowpass in (97, 98) and ath_type == 0:
+                return '-r3mix'
+        elif version >= (3, 90) and version < (3, 97):
+            if vbr_method == 3:
+                if lowpass in (195, 196):
+                    if ath_type in (2, 4):
+                        return '-ape'
+                elif lowpass == 190 and ath_type == 4:
+                    return '-aps'
+                elif lowpass == 180 and ath_type == 4:
+                    return '-apm'
+            elif vbr_method == 4:
+                if lowpass in (195, 196):
+                    if ath_type in (2, 4):
+                        return '-apfe'
+                    elif ath_type == 3:
+                        return '-r3mix'
+                elif lowpass == 190 and ath_type == 4:
+                    return '-apfs'
+                elif lowpass == 180 and ath_type == 4:
+                    return '-apfm'
+            elif (vbr_method in (1, 2) and lowpass in (205, 206) and
+                  ath_type in (2, 4)):
+                return '-api'
 
 class MP3(ID3FileType):
     """An MPEG audio (usually MPEG-1 Layer 3) file."""

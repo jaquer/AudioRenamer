@@ -112,6 +112,9 @@ def check_mp3_tags(full_path, e):
         else:
             t[item] = tags[frame][0]
 
+    if not 'APIC:' in tags:
+        e.append("Cover missing - add")
+
     # ID3 date tags are their own distinct type in Mutagen
     t['date'] = unicode(t['date'])
 
@@ -386,6 +389,7 @@ mp3_allow = ['TPE1', # artist
              'TIT2', # title
              'TDRC', # date
              'TPE2', # albumartist
+             'APIC:',# cover
              'TXXX:replaygain_album_gain',
              'TXXX:replaygain_track_gain',
              'TXXX:replaygain_album_peak',

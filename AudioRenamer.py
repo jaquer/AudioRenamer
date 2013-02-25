@@ -330,7 +330,11 @@ def rename_extras(path, t):
         pname = base + "." + ext
         if fname and fname != pname:
             log("Wrong " + item + " name, expected: '" + os.path.basename(pname) + "' - rename", 4)
-            os.rename(fname, pname)
+            try:
+                os.rename(fname, pname)
+            except:
+                # TODO: better error message
+                log("An error ocurred during renaming", 8)
 
 def safe_fname(fname):
 
